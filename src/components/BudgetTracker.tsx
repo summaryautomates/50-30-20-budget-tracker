@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Shield, Cpu } from 'lucide-react';
+import { RotateCcw, Shield, Cpu, Save, Download } from 'lucide-react';
 import { useBudgetData } from '@/hooks/useBudgetData';
 import BudgetHeader from './BudgetHeader';
 import IncomeSection from './IncomeSection';
@@ -21,7 +21,9 @@ const BudgetTracker = () => {
     setWantsData,
     savingsData,
     setSavingsData,
-    resetData
+    resetData,
+    saveData,
+    downloadPDF
   } = useBudgetData();
 
   // Calculate totals
@@ -40,15 +42,35 @@ const BudgetTracker = () => {
             <Shield className="h-6 w-6 text-green-400 animate-pulse" />
             <span className="text-green-400 font-mono text-sm">[ SECURE FINANCIAL SYSTEM ]</span>
           </div>
-          <Button 
-            onClick={resetData}
-            variant="outline"
-            size="sm"
-            className="gap-2 border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 font-mono"
-          >
-            <RotateCcw className="h-4 w-4" />
-            RESET DATA
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={saveData}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 font-mono"
+            >
+              <Save className="h-4 w-4" />
+              SAVE DATA
+            </Button>
+            <Button 
+              onClick={downloadPDF}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 font-mono"
+            >
+              <Download className="h-4 w-4" />
+              DOWNLOAD PDF
+            </Button>
+            <Button 
+              onClick={resetData}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400 font-mono"
+            >
+              <RotateCcw className="h-4 w-4" />
+              RESET DATA
+            </Button>
+          </div>
         </div>
         
         <BudgetHeader />
