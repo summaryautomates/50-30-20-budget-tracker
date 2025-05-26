@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, Shield, Cpu } from 'lucide-react';
 import { useBudgetData } from '@/hooks/useBudgetData';
 import BudgetHeader from './BudgetHeader';
 import IncomeSection from './IncomeSection';
@@ -33,51 +33,62 @@ const BudgetTracker = () => {
   const leftover = totalIncome - totalExpenses;
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl">
-      <div className="flex items-center justify-between mb-4">
-        <div></div>
-        <Button 
-          onClick={resetData}
-          variant="outline"
-          size="sm"
-          className="gap-2"
-        >
-          <RotateCcw className="h-4 w-4" />
-          Reset to Sample Data
-        </Button>
-      </div>
-      
-      <BudgetHeader />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
-        <div className="lg:col-span-1">
-          <IncomeSection data={incomeData} setData={setIncomeData} />
+    <div className="min-h-screen matrix-bg">
+      <div className="container mx-auto px-4 py-6 max-w-7xl relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Shield className="h-6 w-6 text-green-400 animate-pulse" />
+            <span className="text-green-400 font-mono text-sm">[ SECURE FINANCIAL SYSTEM ]</span>
+          </div>
+          <Button 
+            onClick={resetData}
+            variant="outline"
+            size="sm"
+            className="gap-2 border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 font-mono"
+          >
+            <RotateCcw className="h-4 w-4" />
+            RESET DATA
+          </Button>
         </div>
         
-        <div className="lg:col-span-2">
-          <BudgetVisualization 
-            needs={totalNeeds}
-            wants={totalWants}
-            savings={totalSavings}
-            income={totalIncome}
-          />
-        </div>
+        <BudgetHeader />
         
-        <div className="lg:col-span-1">
-          <BudgetSummary 
-            totalIncome={totalIncome}
-            totalNeeds={totalNeeds}
-            totalWants={totalWants}
-            totalSavings={totalSavings}
-            leftover={leftover}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
+          <div className="lg:col-span-1">
+            <IncomeSection data={incomeData} setData={setIncomeData} />
+          </div>
+          
+          <div className="lg:col-span-2">
+            <BudgetVisualization 
+              needs={totalNeeds}
+              wants={totalWants}
+              savings={totalSavings}
+              income={totalIncome}
+            />
+          </div>
+          
+          <div className="lg:col-span-1">
+            <BudgetSummary 
+              totalIncome={totalIncome}
+              totalNeeds={totalNeeds}
+              totalWants={totalWants}
+              totalSavings={totalSavings}
+              leftover={leftover}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-        <NeedsSection data={needsData} setData={setNeedsData} />
-        <WantsSection data={wantsData} setData={setWantsData} />
-        <SavingsSection data={savingsData} setData={setSavingsData} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+          <NeedsSection data={needsData} setData={setNeedsData} />
+          <WantsSection data={wantsData} setData={setWantsData} />
+          <SavingsSection data={savingsData} setData={setSavingsData} />
+        </div>
+
+        <div className="flex items-center justify-center gap-2 mt-8 text-green-400/60 font-mono text-sm">
+          <Cpu className="h-4 w-4" />
+          <span>[ SYSTEM OPERATIONAL ]</span>
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+        </div>
       </div>
     </div>
   );

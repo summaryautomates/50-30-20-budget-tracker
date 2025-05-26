@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Activity, TrendingUp } from 'lucide-react';
 
 interface BudgetVisualizationProps {
   needs: number;
@@ -12,9 +13,9 @@ interface BudgetVisualizationProps {
 
 const BudgetVisualization = ({ needs, wants, savings, income }: BudgetVisualizationProps) => {
   const pieData = [
-    { name: 'Needs', value: needs, color: '#3B82F6' },
-    { name: 'Wants', value: wants, color: '#10B981' },
-    { name: 'Savings', value: savings, color: '#F59E0B' }
+    { name: 'Needs', value: needs, color: '#ef4444' },
+    { name: 'Wants', value: wants, color: '#3b82f6' },
+    { name: 'Savings', value: savings, color: '#22c55e' }
   ];
 
   const barData = [
@@ -23,13 +24,18 @@ const BudgetVisualization = ({ needs, wants, savings, income }: BudgetVisualizat
     { category: 'Savings', Budget: income * 0.2, Actual: savings }
   ];
 
+  const formatCurrency = (value: number) => `₹${value.toLocaleString('en-IN')}`;
+
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">Actual Percentage</CardTitle>
+      <Card className="bg-gray-900/50 border-green-500/30 glow-green">
+        <CardHeader className="border-b border-green-500/30">
+          <CardTitle className="text-center text-green-400 font-mono flex items-center justify-center gap-2">
+            <Activity className="h-5 w-5" />
+            [ ACTUAL DISTRIBUTION ]
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
@@ -39,30 +45,62 @@ const BudgetVisualization = ({ needs, wants, savings, income }: BudgetVisualizat
                 outerRadius={80}
                 dataKey="value"
                 label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+                labelLine={false}
+                fontSize={12}
+                fill="#22c55e"
               >
                 {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell key={`cell-${index}`} fill={entry.color} stroke="#22c55e" strokeWidth={1} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => `₱${value.toLocaleString()}`} />
+              <Tooltip 
+                formatter={(value: number) => formatCurrency(value)}
+                contentStyle={{
+                  backgroundColor: '#1f2937',
+                  border: '1px solid #22c55e',
+                  borderRadius: '8px',
+                  color: '#22c55e'
+                }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">Budget and Actual</CardTitle>
+      <Card className="bg-gray-900/50 border-green-500/30 glow-green">
+        <CardHeader className="border-b border-green-500/30">
+          <CardTitle className="text-center text-green-400 font-mono flex items-center justify-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            [ BUDGET VS ACTUAL ]
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={barData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="category" />
-              <YAxis tickFormatter={(value) => `₱${(value / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(value: number) => `₱${value.toLocaleString()}`} />
-              <Bar dataKey="Budget" fill="#94A3B8" />
-              <Bar dataKey="Actual" fill="#3B82F6" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#22c55e30" />
+              <XAxis 
+                dataKey="category" 
+                stroke="#22c55e" 
+                fontSize={12}
+                fontFamily="monospace"
+              />
+              <YAxis 
+                tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
+                stroke="#22c55e"
+                fontSize={12}
+                fontFamily="monospace"
+              />
+              <Tooltip 
+                formatter={(value: number) => formatCurrency(value)}
+                contentStyle={{
+                  backgroundColor: '#1f2937',
+                  border: '1px solid #22c55e',
+                  borderRadius: '8px',
+                  color: '#22c55e'
+                }}
+              />
+              <Bar dataKey="Budget" fill="#374151" stroke="#22c55e" strokeWidth={1} />
+              <Bar dataKey="Actual" fill="#22c55e" stroke="#16a34a" strokeWidth={1} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

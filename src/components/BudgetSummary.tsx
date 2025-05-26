@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calculator, PieChart, Wallet, DollarSign } from 'lucide-react';
 
 interface BudgetSummaryProps {
   totalIncome: number;
@@ -18,55 +19,63 @@ const BudgetSummary = ({ totalIncome, totalNeeds, totalWants, totalSavings, left
   const wantsPercent = totalIncome > 0 ? (totalWants / totalIncome) * 100 : 0;
   const savingsPercent = totalIncome > 0 ? (totalSavings / totalIncome) * 100 : 0;
 
+  const formatCurrency = (value: number) => `₹${value.toLocaleString('en-IN')}`;
+
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader className="bg-purple-50">
-          <CardTitle className="text-lg font-bold text-purple-900">EXPENSES SUMMARY</CardTitle>
+      <Card className="bg-gray-900/50 border-red-500/30 shadow-lg shadow-red-500/10">
+        <CardHeader className="bg-red-500/10 border-b border-red-500/30">
+          <CardTitle className="text-lg font-bold text-red-400 font-mono flex items-center gap-2">
+            <Calculator className="h-5 w-5" />
+            [ EXPENSE MATRIX ]
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Needs:</span>
-              <span className="font-semibold">₱{totalNeeds.toLocaleString()}</span>
+          <div className="space-y-2 text-sm font-mono">
+            <div className="flex justify-between text-red-300">
+              <span>NEEDS:</span>
+              <span className="font-semibold text-red-400">{formatCurrency(totalNeeds)}</span>
             </div>
-            <div className="flex justify-between">
-              <span>Wants:</span>
-              <span className="font-semibold">₱{totalWants.toLocaleString()}</span>
+            <div className="flex justify-between text-blue-300">
+              <span>WANTS:</span>
+              <span className="font-semibold text-blue-400">{formatCurrency(totalWants)}</span>
             </div>
-            <div className="flex justify-between">
-              <span>Savings:</span>
-              <span className="font-semibold">₱{totalSavings.toLocaleString()}</span>
+            <div className="flex justify-between text-green-300">
+              <span>SAVINGS:</span>
+              <span className="font-semibold text-green-400">{formatCurrency(totalSavings)}</span>
             </div>
-            <hr className="my-2" />
-            <div className="flex justify-between font-bold">
+            <hr className="my-2 border-green-500/30" />
+            <div className="flex justify-between font-bold text-green-400">
               <span>TOTAL:</span>
-              <span>₱{totalExpenses.toLocaleString()}</span>
+              <span>{formatCurrency(totalExpenses)}</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="bg-indigo-50">
-          <CardTitle className="text-lg font-bold text-indigo-900">PERCENTAGE BREAKDOWN</CardTitle>
+      <Card className="bg-gray-900/50 border-blue-500/30 shadow-lg shadow-blue-500/10">
+        <CardHeader className="bg-blue-500/10 border-b border-blue-500/30">
+          <CardTitle className="text-lg font-bold text-blue-400 font-mono flex items-center gap-2">
+            <PieChart className="h-5 w-5" />
+            [ PERCENTAGE ANALYSIS ]
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Needs:</span>
-              <span className="font-semibold">{needsPercent.toFixed(1)}%</span>
+          <div className="space-y-2 text-sm font-mono">
+            <div className="flex justify-between text-red-300">
+              <span>NEEDS:</span>
+              <span className="font-semibold text-red-400">{needsPercent.toFixed(1)}%</span>
             </div>
-            <div className="flex justify-between">
-              <span>Wants:</span>
-              <span className="font-semibold">{wantsPercent.toFixed(1)}%</span>
+            <div className="flex justify-between text-blue-300">
+              <span>WANTS:</span>
+              <span className="font-semibold text-blue-400">{wantsPercent.toFixed(1)}%</span>
             </div>
-            <div className="flex justify-between">
-              <span>Savings:</span>
-              <span className="font-semibold">{savingsPercent.toFixed(1)}%</span>
+            <div className="flex justify-between text-green-300">
+              <span>SAVINGS:</span>
+              <span className="font-semibold text-green-400">{savingsPercent.toFixed(1)}%</span>
             </div>
-            <hr className="my-2" />
-            <div className="flex justify-between font-bold">
+            <hr className="my-2 border-green-500/30" />
+            <div className="flex justify-between font-bold text-green-400">
               <span>TOTAL:</span>
               <span>{(needsPercent + wantsPercent + savingsPercent).toFixed(1)}%</span>
             </div>
@@ -74,20 +83,23 @@ const BudgetSummary = ({ totalIncome, totalNeeds, totalWants, totalSavings, left
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="bg-green-100">
-          <CardTitle className="text-lg font-bold text-green-900 flex items-center gap-2">
-            LEFTOVER
-            <span className="text-2xl">💰</span>
+      <Card className="bg-gray-900/50 border-green-500/30 shadow-lg shadow-green-500/20 glow-green">
+        <CardHeader className="bg-green-500/10 border-b border-green-500/30">
+          <CardTitle className="text-lg font-bold text-green-400 font-mono flex items-center gap-2">
+            <Wallet className="h-5 w-5" />
+            [ BALANCE STATUS ]
+            <DollarSign className="h-4 w-4 animate-pulse" />
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4">
           <div className="text-center">
-            <div className="text-sm text-gray-600 mb-1">BUDGET</div>
-            <div className="text-2xl font-bold text-green-600">
-              ₱{Math.abs(leftover).toLocaleString()}
+            <div className="text-sm text-green-300 mb-1 font-mono">REMAINING FUNDS</div>
+            <div className={`text-2xl font-bold font-mono ${leftover >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              {formatCurrency(Math.abs(leftover))}
             </div>
-            <div className="text-sm text-gray-600 mt-2">ACTUAL</div>
+            <div className="text-sm text-green-300 mt-2 font-mono">
+              {leftover >= 0 ? '[ SURPLUS ]' : '[ DEFICIT ]'}
+            </div>
           </div>
         </CardContent>
       </Card>
