@@ -36,51 +36,58 @@ const BudgetTracker = () => {
 
   return (
     <div className="min-h-screen matrix-bg">
-      <div className="container mx-auto px-4 py-6 max-w-7xl relative z-10">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-green-400 animate-pulse" />
-            <span className="text-green-400 font-mono text-sm">[ SECURE FINANCIAL SYSTEM ]</span>
+      <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6 max-w-7xl relative z-10">
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+          <div className="flex items-center gap-2 order-2 sm:order-1">
+            <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-green-400 animate-pulse" />
+            <span className="text-green-400 font-mono text-xs sm:text-sm">[ SECURE FINANCIAL SYSTEM ]</span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 order-1 sm:order-2 justify-center sm:justify-end">
             <Button 
               onClick={saveData}
               variant="outline"
               size="sm"
-              className="gap-2 border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 font-mono"
+              className="gap-2 border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 font-mono text-xs sm:text-sm"
             >
-              <Save className="h-4 w-4" />
-              SAVE DATA
+              <Save className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden xs:inline">SAVE DATA</span>
+              <span className="xs:hidden">SAVE</span>
             </Button>
             <Button 
               onClick={downloadPDF}
               variant="outline"
               size="sm"
-              className="gap-2 border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 font-mono"
+              className="gap-2 border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 font-mono text-xs sm:text-sm"
             >
-              <Download className="h-4 w-4" />
-              DOWNLOAD PDF
+              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden xs:inline">DOWNLOAD PDF</span>
+              <span className="xs:hidden">PDF</span>
             </Button>
             <Button 
               onClick={resetData}
               variant="outline"
               size="sm"
-              className="gap-2 border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400 font-mono"
+              className="gap-2 border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400 font-mono text-xs sm:text-sm"
             >
-              <RotateCcw className="h-4 w-4" />
-              RESET DATA
+              <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden xs:inline">RESET DATA</span>
+              <span className="xs:hidden">RESET</span>
             </Button>
           </div>
         </div>
         
         <BudgetHeader />
         
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
-          <div className="lg:col-span-1">
+        {/* Main Dashboard Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6 mt-6 sm:mt-8">
+          {/* Income Section - Full width on mobile, 1 column on desktop */}
+          <div className="xl:col-span-1">
             <IncomeSection data={incomeData} setData={setIncomeData} />
           </div>
           
-          <div className="lg:col-span-2">
+          {/* Visualization - Full width on mobile/tablet, 2 columns on desktop */}
+          <div className="xl:col-span-2">
             <BudgetVisualization 
               needs={totalNeeds}
               wants={totalWants}
@@ -89,7 +96,8 @@ const BudgetTracker = () => {
             />
           </div>
           
-          <div className="lg:col-span-1">
+          {/* Summary - Full width on mobile, 1 column on desktop */}
+          <div className="xl:col-span-1">
             <BudgetSummary 
               totalIncome={totalIncome}
               totalNeeds={totalNeeds}
@@ -100,14 +108,22 @@ const BudgetTracker = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-          <NeedsSection data={needsData} setData={setNeedsData} />
-          <WantsSection data={wantsData} setData={setWantsData} />
-          <SavingsSection data={savingsData} setData={setSavingsData} />
+        {/* Budget Categories Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
+          <div className="w-full">
+            <NeedsSection data={needsData} setData={setNeedsData} />
+          </div>
+          <div className="w-full">
+            <WantsSection data={wantsData} setData={setWantsData} />
+          </div>
+          <div className="w-full">
+            <SavingsSection data={savingsData} setData={setSavingsData} />
+          </div>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-8 text-green-400/60 font-mono text-sm">
-          <Cpu className="h-4 w-4" />
+        {/* System Status Footer */}
+        <div className="flex items-center justify-center gap-2 mt-6 sm:mt-8 text-green-400/60 font-mono text-xs sm:text-sm">
+          <Cpu className="h-3 w-3 sm:h-4 sm:w-4" />
           <span>[ SYSTEM OPERATIONAL ]</span>
           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
         </div>

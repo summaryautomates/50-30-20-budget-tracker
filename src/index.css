@@ -54,11 +54,19 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
+    overflow-x: hidden;
+  }
+
+  /* Responsive font sizes */
+  @media (max-width: 640px) {
+    body {
+      font-size: 14px;
+    }
   }
 
   /* Hacker-style scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
   
   ::-webkit-scrollbar-track {
@@ -76,11 +84,23 @@
 
   /* Glow effects */
   .glow-green {
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+  }
+
+  @media (min-width: 768px) {
+    .glow-green {
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+    }
   }
 
   .text-glow {
-    text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    text-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+  }
+
+  @media (min-width: 768px) {
+    .text-glow {
+      text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    }
   }
 
   /* Matrix-style background animation */
@@ -88,6 +108,7 @@
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
     position: relative;
     overflow: hidden;
+    min-height: 100vh;
   }
 
   .matrix-bg::before {
@@ -98,10 +119,19 @@
     right: 0;
     bottom: 0;
     background-image: 
-      radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+      radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(34, 197, 94, 0.08) 0%, transparent 50%);
     animation: matrix-move 20s ease-in-out infinite;
+  }
+
+  @media (min-width: 768px) {
+    .matrix-bg::before {
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+    }
   }
 
   @keyframes matrix-move {
@@ -113,15 +143,42 @@
   .terminal-border {
     border: 1px solid rgb(34 197 94);
     box-shadow: 
-      0 0 10px rgba(34, 197, 94, 0.2),
-      inset 0 0 10px rgba(34, 197, 94, 0.1);
+      0 0 8px rgba(34, 197, 94, 0.15),
+      inset 0 0 8px rgba(34, 197, 94, 0.08);
+  }
+
+  @media (min-width: 768px) {
+    .terminal-border {
+      box-shadow: 
+        0 0 10px rgba(34, 197, 94, 0.2),
+        inset 0 0 10px rgba(34, 197, 94, 0.1);
+    }
   }
 
   /* Cyber grid pattern */
   .cyber-grid {
     background-image: 
-      linear-gradient(rgba(34, 197, 94, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34, 197, 94, 0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
+      linear-gradient(rgba(34, 197, 94, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34, 197, 94, 0.08) 1px, transparent 1px);
+    background-size: 15px 15px;
+  }
+
+  @media (min-width: 768px) {
+    .cyber-grid {
+      background-image: 
+        linear-gradient(rgba(34, 197, 94, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 197, 94, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+  }
+
+  /* Custom responsive utilities */
+  @media (min-width: 475px) {
+    .xs\:inline {
+      display: inline;
+    }
+    .xs\:hidden {
+      display: none;
+    }
   }
 }
