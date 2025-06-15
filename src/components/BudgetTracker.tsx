@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Shield, Cpu, Save, Download } from 'lucide-react';
+import { RotateCcw, Shield, Waves, Save, Download } from 'lucide-react';
 import { useBudgetData } from '@/hooks/useBudgetData';
 import BudgetHeader from './BudgetHeader';
 import IncomeSection from './IncomeSection';
@@ -35,22 +35,22 @@ const BudgetTracker = () => {
   const leftover = totalIncome - totalExpenses;
 
   return (
-    <div className="min-h-screen matrix-bg">
-      <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6 max-w-7xl relative z-10">
+    <div className="min-h-screen ocean-bg">
+      <div className="container mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 max-w-7xl relative z-10">
         {/* Header Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
-          <div className="flex items-center gap-2 order-2 sm:order-1">
-            <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-green-400 animate-pulse" />
-            <span className="text-green-400 font-mono text-xs sm:text-sm">[ SECURE FINANCIAL SYSTEM ]</span>
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8 gap-4 sm:gap-0">
+          <div className="flex items-center gap-3 order-2 sm:order-1">
+            <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-blue-400 animate-pulse" />
+            <span className="text-blue-400 font-semibold text-sm sm:text-base">[ LUXURY FINANCIAL SUITE ]</span>
           </div>
-          <div className="flex flex-wrap gap-2 order-1 sm:order-2 justify-center sm:justify-end">
+          <div className="flex flex-wrap gap-3 order-1 sm:order-2 justify-center sm:justify-end">
             <Button 
               onClick={saveData}
               variant="outline"
               size="sm"
-              className="gap-2 border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 font-mono text-xs sm:text-sm"
+              className="gap-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/20 hover:border-blue-400 font-medium text-sm"
             >
-              <Save className="h-3 w-3 sm:h-4 sm:w-4" />
+              <Save className="h-4 w-4" />
               <span className="hidden xs:inline">SAVE DATA</span>
               <span className="xs:hidden">SAVE</span>
             </Button>
@@ -58,9 +58,9 @@ const BudgetTracker = () => {
               onClick={downloadPDF}
               variant="outline"
               size="sm"
-              className="gap-2 border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 font-mono text-xs sm:text-sm"
+              className="gap-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/20 hover:border-blue-400 font-medium text-sm"
             >
-              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+              <Download className="h-4 w-4" />
               <span className="hidden xs:inline">DOWNLOAD PDF</span>
               <span className="xs:hidden">PDF</span>
             </Button>
@@ -68,9 +68,9 @@ const BudgetTracker = () => {
               onClick={resetData}
               variant="outline"
               size="sm"
-              className="gap-2 border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400 font-mono text-xs sm:text-sm"
+              className="gap-2 border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400 font-medium text-sm"
             >
-              <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
+              <RotateCcw className="h-4 w-4" />
               <span className="hidden xs:inline">RESET DATA</span>
               <span className="xs:hidden">RESET</span>
             </Button>
@@ -80,7 +80,7 @@ const BudgetTracker = () => {
         <BudgetHeader />
         
         {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6 mt-6 sm:mt-8">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 sm:gap-8 mt-8 sm:mt-10">
           {/* Income Section - Full width on mobile, 1 column on desktop */}
           <div className="xl:col-span-1">
             <IncomeSection data={incomeData} setData={setIncomeData} />
@@ -109,7 +109,7 @@ const BudgetTracker = () => {
         </div>
 
         {/* Budget Categories Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-10">
           <div className="w-full">
             <NeedsSection data={needsData} setData={setNeedsData} />
           </div>
@@ -122,10 +122,10 @@ const BudgetTracker = () => {
         </div>
 
         {/* System Status Footer */}
-        <div className="flex items-center justify-center gap-2 mt-6 sm:mt-8 text-green-400/60 font-mono text-xs sm:text-sm">
-          <Cpu className="h-3 w-3 sm:h-4 sm:w-4" />
-          <span>[ SYSTEM OPERATIONAL ]</span>
-          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+        <div className="flex items-center justify-center gap-3 mt-8 sm:mt-12 text-blue-400/70 font-medium text-sm sm:text-base">
+          <Waves className="h-4 w-4 sm:h-5 sm:w-5" />
+          <span>[ OCEAN SUITE OPERATIONAL ]</span>
+          <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
         </div>
       </div>
     </div>

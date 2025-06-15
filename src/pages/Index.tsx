@@ -4,7 +4,7 @@ import BudgetTracker from '@/components/BudgetTracker';
 
 const Index = () => {
   return (
-    <div className="min-h-screen w-full bg-black overflow-x-hidden">
+    <div className="min-h-screen w-full bg-slate-900 overflow-x-hidden">
       <BudgetTracker />
     </div>
   );
