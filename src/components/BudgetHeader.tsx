@@ -26,6 +26,11 @@ const BudgetHeader = () => {
       <div className="absolute inset-0 ocean-pattern opacity-15"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-cyan-500/10"></div>
       
+      {/* New bold professional logo */}
+      <div className="relative z-20 mb-8">
+        <span className="app-logo">Summary Finance Suite</span>
+      </div>
+      
       {/* Floating Elements */}
       <div className="absolute top-4 right-4 w-20 h-20 bg-blue-500/10 rounded-full animate-pulse"></div>
       <div className="absolute bottom-4 left-4 w-16 h-16 bg-cyan-500/10 rounded-full animate-pulse delay-1000"></div>
@@ -40,10 +45,10 @@ const BudgetHeader = () => {
         
         {/* Main Title */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent mb-3 text-glow tracking-wider">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent mb-3 text-glow tracking-wider font-inter uppercase">
             50/30/20 BUDGET
           </h1>
-          <div className="text-sm sm:text-base text-blue-300/80 mb-2 font-medium tracking-widest">
+          <div className="text-sm sm:text-base text-blue-300/80 mb-2 font-medium tracking-widest font-inter">
             [ LUXURY FINANCIAL OCEAN SUITE ]
           </div>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 mx-auto rounded-full"></div>
@@ -55,14 +60,14 @@ const BudgetHeader = () => {
             variant="ghost"
             size="sm"
             onClick={previousMonth}
-            className="text-blue-300 hover:text-blue-400 hover:bg-blue-500/20 border border-blue-500/30 hover:border-blue-400/50 rounded-xl transition-all duration-300 group"
+            className="text-blue-300 hover:text-blue-400 hover:bg-blue-500/20 border border-blue-500/30 hover:border-blue-400/50 rounded-xl transition-all duration-300 group font-bold"
           >
             <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform" />
           </Button>
           
           <div className="flex items-center gap-3 px-4 sm:px-6 py-2 bg-blue-500/10 border border-blue-500/30 rounded-xl backdrop-blur-sm">
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
-            <p className="text-lg sm:text-xl text-blue-300 font-medium min-w-[180px] sm:min-w-[220px] uppercase tracking-wide text-center">
+            <p className="text-lg sm:text-xl text-blue-300 font-semibold min-w-[180px] sm:min-w-[220px] uppercase tracking-wide text-center font-inter">
               {formatDate(currentDate)}
             </p>
           </div>
@@ -71,7 +76,7 @@ const BudgetHeader = () => {
             variant="ghost"
             size="sm"
             onClick={nextMonth}
-            className="text-blue-300 hover:text-blue-400 hover:bg-blue-500/20 border border-blue-500/30 hover:border-blue-400/50 rounded-xl transition-all duration-300 group"
+            className="text-blue-300 hover:text-blue-400 hover:bg-blue-500/20 border border-blue-500/30 hover:border-blue-400/50 rounded-xl transition-all duration-300 group font-bold"
           >
             <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform" />
           </Button>
