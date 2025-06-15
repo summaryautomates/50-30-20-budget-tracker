@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Shield, Waves, Save, Download, TrendingUp, Eye, EyeOff } from 'lucide-react';
+import { RotateCcw, Shield, Waves, Save, Download, TrendingUp, Eye, EyeOff, Gamepad2 } from 'lucide-react';
 import { useBudgetData } from '@/hooks/useBudgetData';
 import BudgetHeader from './BudgetHeader';
 import IncomeSection from './IncomeSection';
@@ -11,9 +11,13 @@ import WantsSection from './WantsSection';
 import SavingsSection from './SavingsSection';
 import BudgetSummary from './BudgetSummary';
 import QuickStatsCard from './QuickStatsCard';
+import AchievementSystem from './AchievementSystem';
+import FinancialHealthScore from './FinancialHealthScore';
+import StreakTracker from './StreakTracker';
 
 const BudgetTracker = () => {
   const [showDetailedView, setShowDetailedView] = useState(true);
+  const [showGameView, setShowGameView] = useState(false);
   const {
     incomeData,
     setIncomeData,
@@ -36,10 +40,21 @@ const BudgetTracker = () => {
   const totalExpenses = totalNeeds + totalWants + totalSavings;
   const leftover = totalIncome - totalExpenses;
 
-  // Calculate ideal allocations (50/30/20 rule)
+  // Calculate ideal allocations and compliance
   const idealNeeds = totalIncome * 0.5;
   const idealWants = totalIncome * 0.3;
   const idealSavings = totalIncome * 0.2;
+  
+  const budgetCompliance = totalIncome > 0 ? (
+    100 - (
+      Math.abs((totalNeeds/totalIncome) - 0.5) * 100 +
+      Math.abs((totalWants/totalIncome) - 0.3) * 100 +
+      Math.abs((totalSavings/totalIncome) - 0.2) * 100
+    ) / 3
+  ) : 0;
+
+  const savingsRate = totalIncome > 0 ? (totalSavings / totalIncome) * 100 : 0;
+  const streak = 5; // This would come from localStorage in real implementation
 
   return (
     <div className="min-h-screen ocean-bg">
@@ -56,6 +71,15 @@ const BudgetTracker = () => {
           </div>
           
           <div className="flex flex-wrap gap-2 items-center">
+            <Button 
+              onClick={() => setShowGameView(!showGameView)}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/20 hover:border-purple-400 font-medium text-sm"
+            >
+              <Gamepad2 className="h-4 w-4" />
+              <span className="hidden xs:inline">{showGameView ? 'HIDE GAME' : 'GAME MODE'}</span>
+            </Button>
             <Button 
               onClick={() => setShowDetailedView(!showDetailedView)}
               variant="outline"
@@ -119,12 +143,36 @@ const BudgetTracker = () => {
           />
           <QuickStatsCard 
             title="SAVINGS RATE"
-            value={totalIncome > 0 ? (totalSavings / totalIncome) * 100 : 0}
+            value={savingsRate}
             icon={<TrendingUp className="h-5 w-5" />}
             color="cyan"
             isPercentage={true}
           />
         </div>
+
+        {/* Gamification Dashboard */}
+        {showGameView && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <FinancialHealthScore
+              totalIncome={totalIncome}
+              totalNeeds={totalNeeds}
+              totalWants={totalWants}
+              totalSavings={totalSavings}
+              leftover={leftover}
+            />
+            <AchievementSystem
+              totalIncome={totalIncome}
+              totalSavings={totalSavings}
+              savingsRate={savingsRate}
+              budgetCompliance={budgetCompliance}
+              streak={streak}
+            />
+            <StreakTracker
+              budgetCompliance={budgetCompliance}
+              leftover={leftover}
+            />
+          </div>
+        )}
 
         {showDetailedView ? (
           <>
@@ -202,15 +250,7 @@ const BudgetTracker = () => {
             
             <div className="flex items-center gap-6 text-xs text-blue-400/50 font-mono">
               <span>BUDGET ADHERENCE: {totalIncome > 0 ? ((1 - Math.abs(leftover) / totalIncome) * 100).toFixed(1) : 0}%</span>
-              <span>50/30/20 COMPLIANCE: {
-                totalIncome > 0 ? (
-                  100 - (
-                    Math.abs((totalNeeds/totalIncome) - 0.5) * 100 +
-                    Math.abs((totalWants/totalIncome) - 0.3) * 100 +
-                    Math.abs((totalSavings/totalIncome) - 0.2) * 100
-                  ) / 3
-                ).toFixed(1) : 0
-              }%</span>
+              <span>50/30/20 COMPLIANCE: {budgetCompliance.toFixed(1)}%</span>
             </div>
           </div>
         </div>
