@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Shield, Waves, Save, Download } from 'lucide-react';
+import { RotateCcw, Shield, Waves, Save, Download, TrendingUp, Eye, EyeOff } from 'lucide-react';
 import { useBudgetData } from '@/hooks/useBudgetData';
 import BudgetHeader from './BudgetHeader';
 import IncomeSection from './IncomeSection';
@@ -10,8 +10,10 @@ import NeedsSection from './NeedsSection';
 import WantsSection from './WantsSection';
 import SavingsSection from './SavingsSection';
 import BudgetSummary from './BudgetSummary';
+import QuickStatsCard from './QuickStatsCard';
 
 const BudgetTracker = () => {
+  const [showDetailedView, setShowDetailedView] = useState(true);
   const {
     incomeData,
     setIncomeData,
@@ -34,35 +36,52 @@ const BudgetTracker = () => {
   const totalExpenses = totalNeeds + totalWants + totalSavings;
   const leftover = totalIncome - totalExpenses;
 
+  // Calculate ideal allocations (50/30/20 rule)
+  const idealNeeds = totalIncome * 0.5;
+  const idealWants = totalIncome * 0.3;
+  const idealSavings = totalIncome * 0.2;
+
   return (
     <div className="min-h-screen ocean-bg">
       <div className="container mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 max-w-7xl relative z-10">
-        {/* Header Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8 gap-4 sm:gap-0">
-          <div className="flex items-center gap-3 order-2 sm:order-1">
-            <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-blue-400 animate-pulse" />
-            <span className="text-blue-400 font-semibold text-sm sm:text-base">[ LUXURY FINANCIAL SUITE ]</span>
+        {/* Enhanced Header with Quick Actions */}
+        <div className="flex flex-col lg:flex-row items-center justify-between mb-6 sm:mb-8 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-blue-400 animate-pulse" />
+              <span className="text-blue-400 font-semibold text-sm sm:text-base tracking-wide">
+                [ OCEAN FINANCIAL SUITE ]
+              </span>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-3 order-1 sm:order-2 justify-center sm:justify-end">
+          
+          <div className="flex flex-wrap gap-2 items-center">
             <Button 
-              onClick={saveData}
+              onClick={() => setShowDetailedView(!showDetailedView)}
               variant="outline"
               size="sm"
               className="gap-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/20 hover:border-blue-400 font-medium text-sm"
             >
+              {showDetailedView ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              <span className="hidden xs:inline">{showDetailedView ? 'SIMPLE VIEW' : 'DETAILED VIEW'}</span>
+            </Button>
+            <Button 
+              onClick={saveData}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400 font-medium text-sm"
+            >
               <Save className="h-4 w-4" />
-              <span className="hidden xs:inline">SAVE DATA</span>
-              <span className="xs:hidden">SAVE</span>
+              <span className="hidden xs:inline">SAVE</span>
             </Button>
             <Button 
               onClick={downloadPDF}
               variant="outline"
               size="sm"
-              className="gap-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/20 hover:border-blue-400 font-medium text-sm"
+              className="gap-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400 font-medium text-sm"
             >
               <Download className="h-4 w-4" />
-              <span className="hidden xs:inline">DOWNLOAD PDF</span>
-              <span className="xs:hidden">PDF</span>
+              <span className="hidden xs:inline">PDF</span>
             </Button>
             <Button 
               onClick={resetData}
@@ -71,61 +90,129 @@ const BudgetTracker = () => {
               className="gap-2 border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400 font-medium text-sm"
             >
               <RotateCcw className="h-4 w-4" />
-              <span className="hidden xs:inline">RESET DATA</span>
-              <span className="xs:hidden">RESET</span>
+              <span className="hidden xs:inline">RESET</span>
             </Button>
           </div>
         </div>
         
         <BudgetHeader />
         
-        {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 sm:gap-8 mt-8 sm:mt-10">
-          {/* Income Section - Full width on mobile, 1 column on desktop */}
-          <div className="xl:col-span-1">
-            <IncomeSection data={incomeData} setData={setIncomeData} />
-          </div>
-          
-          {/* Visualization - Full width on mobile/tablet, 2 columns on desktop */}
-          <div className="xl:col-span-2">
-            <BudgetVisualization 
-              needs={totalNeeds}
-              wants={totalWants}
-              savings={totalSavings}
-              income={totalIncome}
-            />
-          </div>
-          
-          {/* Summary - Full width on mobile, 1 column on desktop */}
-          <div className="xl:col-span-1">
-            <BudgetSummary 
-              totalIncome={totalIncome}
-              totalNeeds={totalNeeds}
-              totalWants={totalWants}
-              totalSavings={totalSavings}
-              leftover={leftover}
-            />
-          </div>
+        {/* Quick Stats Overview */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8 mb-8">
+          <QuickStatsCard 
+            title="TOTAL INCOME"
+            value={totalIncome}
+            icon={<TrendingUp className="h-5 w-5" />}
+            color="blue"
+          />
+          <QuickStatsCard 
+            title="EXPENSES"
+            value={totalExpenses}
+            icon={<Waves className="h-5 w-5" />}
+            color="purple"
+          />
+          <QuickStatsCard 
+            title="REMAINING"
+            value={leftover}
+            icon={<Shield className="h-5 w-5" />}
+            color={leftover >= 0 ? "emerald" : "red"}
+          />
+          <QuickStatsCard 
+            title="SAVINGS RATE"
+            value={totalIncome > 0 ? (totalSavings / totalIncome) * 100 : 0}
+            icon={<TrendingUp className="h-5 w-5" />}
+            color="cyan"
+            isPercentage={true}
+          />
         </div>
 
-        {/* Budget Categories Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-10">
-          <div className="w-full">
-            <NeedsSection data={needsData} setData={setNeedsData} />
-          </div>
-          <div className="w-full">
-            <WantsSection data={wantsData} setData={setWantsData} />
-          </div>
-          <div className="w-full">
-            <SavingsSection data={savingsData} setData={setSavingsData} />
-          </div>
-        </div>
+        {showDetailedView ? (
+          <>
+            {/* Main Dashboard Grid - Detailed View */}
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 sm:gap-8">
+              <div className="xl:col-span-1">
+                <IncomeSection data={incomeData} setData={setIncomeData} />
+              </div>
+              
+              <div className="xl:col-span-2">
+                <BudgetVisualization 
+                  needs={totalNeeds}
+                  wants={totalWants}
+                  savings={totalSavings}
+                  income={totalIncome}
+                />
+              </div>
+              
+              <div className="xl:col-span-1">
+                <BudgetSummary 
+                  totalIncome={totalIncome}
+                  totalNeeds={totalNeeds}
+                  totalWants={totalWants}
+                  totalSavings={totalSavings}
+                  leftover={leftover}
+                />
+              </div>
+            </div>
 
-        {/* System Status Footer */}
-        <div className="flex items-center justify-center gap-3 mt-8 sm:mt-12 text-blue-400/70 font-medium text-sm sm:text-base">
-          <Waves className="h-4 w-4 sm:h-5 sm:w-5" />
-          <span>[ OCEAN SUITE OPERATIONAL ]</span>
-          <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+            {/* Budget Categories Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-10">
+              <div className="w-full">
+                <NeedsSection data={needsData} setData={setNeedsData} />
+              </div>
+              <div className="w-full">
+                <WantsSection data={wantsData} setData={setWantsData} />
+              </div>
+              <div className="w-full">
+                <SavingsSection data={savingsData} setData={setSavingsData} />
+              </div>
+            </div>
+          </>
+        ) : (
+          /* Simple View - Focused on key metrics */
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <IncomeSection data={incomeData} setData={setIncomeData} />
+              <BudgetSummary 
+                totalIncome={totalIncome}
+                totalNeeds={totalNeeds}
+                totalWants={totalWants}
+                totalSavings={totalSavings}
+                leftover={leftover}
+              />
+            </div>
+            <div>
+              <BudgetVisualization 
+                needs={totalNeeds}
+                wants={totalWants}
+                savings={totalSavings}
+                income={totalIncome}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Footer with Status */}
+        <div className="mt-12 pt-8 border-t border-blue-500/20">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 text-blue-400/70 font-medium text-sm">
+              <Waves className="h-4 w-4 animate-pulse" />
+              <span>[ OCEAN SUITE OPERATIONAL ]</span>
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+            </div>
+            
+            <div className="flex items-center gap-6 text-xs text-blue-400/50 font-mono">
+              <span>BUDGET ADHERENCE: {totalIncome > 0 ? ((1 - Math.abs(leftover) / totalIncome) * 100).toFixed(1) : 0}%</span>
+              <span>50/30/20 COMPLIANCE: {
+                totalIncome > 0 ? (
+                  100 - (
+                    Math.abs((totalNeeds/totalIncome) - 0.5) * 100 +
+                    Math.abs((totalWants/totalIncome) - 0.3) * 100 +
+                    Math.abs((totalSavings/totalIncome) - 0.2) * 100
+                  ) / 3
+                ).toFixed(1) : 0
+              }%</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

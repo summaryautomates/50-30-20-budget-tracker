@@ -5,44 +5,44 @@
 
 @layer base {
   :root {
-    --background: 0 0% 8%;
+    --background: 0 0% 6%;
     --foreground: 210 40% 95%;
 
-    --card: 220 13% 12%;
+    --card: 220 13% 10%;
     --card-foreground: 210 40% 95%;
 
-    --popover: 220 13% 12%;
+    --popover: 220 13% 10%;
     --popover-foreground: 210 40% 95%;
 
-    --primary: 210 90% 45%;
+    --primary: 210 90% 50%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 215 28% 17%;
+    --secondary: 215 28% 15%;
     --secondary-foreground: 210 40% 95%;
 
-    --muted: 215 28% 17%;
+    --muted: 215 28% 15%;
     --muted-foreground: 210 15% 65%;
 
-    --accent: 210 90% 45%;
+    --accent: 210 90% 50%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --ring: 210 90% 45%;
+    --border: 215 28% 15%;
+    --input: 215 28% 15%;
+    --ring: 210 90% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 8%;
+    --sidebar-background: 0 0% 6%;
     --sidebar-foreground: 210 40% 95%;
-    --sidebar-primary: 210 90% 45%;
+    --sidebar-primary: 210 90% 50%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent: 215 28% 15%;
     --sidebar-accent-foreground: 210 40% 95%;
-    --sidebar-border: 215 28% 17%;
-    --sidebar-ring: 210 90% 45%;
+    --sidebar-border: 215 28% 15%;
+    --sidebar-ring: 210 90% 50%;
   }
 }
 
@@ -57,57 +57,61 @@
     overflow-x: hidden;
   }
 
-  /* Responsive font sizes */
-  @media (max-width: 640px) {
-    body {
-      font-size: 14px;
-    }
-  }
-
-  /* Luxury-style scrollbar */
+  /* Enhanced scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 10px;
   }
   
   ::-webkit-scrollbar-track {
-    background: rgb(30 41 59);
+    background: rgb(15 23 42);
+    border-radius: 10px;
   }
   
   ::-webkit-scrollbar-thumb {
-    background: rgb(59 130 246);
-    border-radius: 6px;
+    background: linear-gradient(180deg, rgb(59 130 246), rgb(34 197 94));
+    border-radius: 10px;
+    border: 2px solid rgb(15 23 42);
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: rgb(37 99 235);
+    background: linear-gradient(180deg, rgb(37 99 235), rgb(22 163 74));
   }
 
-  /* Ocean blue glow effects */
+  /* Enhanced glow effects */
   .glow-blue {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
+    box-shadow: 
+      0 0 20px rgba(59, 130, 246, 0.3),
+      0 0 40px rgba(59, 130, 246, 0.1),
+      inset 0 0 20px rgba(59, 130, 246, 0.05);
   }
 
   @media (min-width: 768px) {
     .glow-blue {
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.35);
+      box-shadow: 
+        0 0 30px rgba(59, 130, 246, 0.4),
+        0 0 60px rgba(59, 130, 246, 0.15),
+        inset 0 0 30px rgba(59, 130, 246, 0.08);
     }
+  }
+
+  .glow-green {
+    box-shadow: 
+      0 0 20px rgba(34, 197, 94, 0.3),
+      0 0 40px rgba(34, 197, 94, 0.1),
+      inset 0 0 20px rgba(34, 197, 94, 0.05);
   }
 
   .text-glow {
-    text-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+    text-shadow: 
+      0 0 10px rgba(59, 130, 246, 0.6),
+      0 0 20px rgba(59, 130, 246, 0.3),
+      0 0 30px rgba(59, 130, 246, 0.1);
   }
 
-  @media (min-width: 768px) {
-    .text-glow {
-      text-shadow: 0 0 16px rgba(59, 130, 246, 0.6);
-    }
-  }
-
-  /* Luxury ocean background */
+  /* Enhanced ocean background */
   .ocean-bg {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #334155 70%, #0f172a 100%);
     position: relative;
-    overflow: hidden;
     min-height: 100vh;
   }
 
@@ -118,67 +122,80 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: 
-      radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.10) 0%, transparent 50%);
-    animation: ocean-move 25s ease-in-out infinite;
+    background: 
+      radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.10) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+      radial-gradient(circle at 60% 40%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+    animation: ocean-flow 20s ease-in-out infinite;
   }
 
-  @media (min-width: 768px) {
-    .ocean-bg::before {
-      background-image: 
-        radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.13) 0%, transparent 50%);
+  @keyframes ocean-flow {
+    0%, 100% { 
+      transform: translateY(0px) translateX(0px) rotate(0deg);
+      opacity: 1;
+    }
+    25% { 
+      transform: translateY(-20px) translateX(10px) rotate(1deg);
+      opacity: 0.8;
+    }
+    50% { 
+      transform: translateY(-10px) translateX(-15px) rotate(-1deg);
+      opacity: 0.9;
+    }
+    75% { 
+      transform: translateY(-30px) translateX(5px) rotate(0.5deg);
+      opacity: 0.85;
     }
   }
 
-  @keyframes ocean-move {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-30px) rotate(2deg); }
-  }
-
-  /* Luxury borders */
+  /* Enhanced luxury borders */
   .luxury-border {
-    border: 1px solid rgb(59 130 246);
+    border: 1px solid rgba(59, 130, 246, 0.4);
     box-shadow: 
-      0 0 12px rgba(59, 130, 246, 0.2),
-      inset 0 0 12px rgba(59, 130, 246, 0.1);
+      0 0 20px rgba(59, 130, 246, 0.2),
+      inset 0 0 20px rgba(59, 130, 246, 0.05),
+      0 4px 20px rgba(0, 0, 0, 0.3);
   }
 
-  @media (min-width: 768px) {
-    .luxury-border {
-      box-shadow: 
-        0 0 16px rgba(59, 130, 246, 0.25),
-        inset 0 0 16px rgba(59, 130, 246, 0.12);
-    }
-  }
-
-  /* Ocean wave pattern */
+  /* Enhanced ocean pattern */
   .ocean-pattern {
-    background-image: 
-      linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background: 
+      linear-gradient(45deg, rgba(59, 130, 246, 0.05) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(59, 130, 246, 0.05) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(34, 197, 94, 0.03) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(34, 197, 94, 0.03) 75%);
+    background-size: 30px 30px;
+    background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
   }
 
-  @media (min-width: 768px) {
-    .ocean-pattern {
-      background-image: 
-        linear-gradient(rgba(59, 130, 246, 0.12) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(59, 130, 246, 0.12) 1px, transparent 1px);
-      background-size: 25px 25px;
-    }
-  }
-
-  /* Custom responsive utilities */
+  /* Responsive utilities */
   @media (min-width: 475px) {
-    .xs\:inline {
-      display: inline;
-    }
-    .xs\:hidden {
-      display: none;
-    }
+    .xs\:inline { display: inline; }
+    .xs\:hidden { display: none; }
+    .xs\:block { display: block; }
+  }
+
+  /* Enhanced transitions */
+  .transition-all {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Hover effects */
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Loading animations */
+  @keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+    background-size: 200px 100%;
+    animation: shimmer 2s infinite;
   }
 }
