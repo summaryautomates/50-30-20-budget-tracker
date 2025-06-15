@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Shield, Waves, Save, Download, TrendingUp, Eye, EyeOff, Gamepad2 } from 'lucide-react';
+import { RotateCcw, Shield, Waves, Save, Download, TrendingUp, Eye, EyeOff, Gamepad2, Zap, Target } from 'lucide-react';
 import { useBudgetData } from '@/hooks/useBudgetData';
 import BudgetHeader from './BudgetHeader';
 import IncomeSection from './IncomeSection';
@@ -14,10 +14,17 @@ import QuickStatsCard from './QuickStatsCard';
 import AchievementSystem from './AchievementSystem';
 import FinancialHealthScore from './FinancialHealthScore';
 import StreakTracker from './StreakTracker';
+import OnboardingWizard from './OnboardingWizard';
+import QuickActionCards from './QuickActionCards';
+import GoalSetting from './GoalSetting';
 
 const BudgetTracker = () => {
   const [showDetailedView, setShowDetailedView] = useState(true);
   const [showGameView, setShowGameView] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [showGoals, setShowGoals] = useState(false);
+  
   const {
     incomeData,
     setIncomeData,
@@ -31,6 +38,14 @@ const BudgetTracker = () => {
     saveData,
     downloadPDF
   } = useBudgetData();
+
+  // Check if user has completed onboarding
+  useEffect(() => {
+    const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding');
+    if (!hasCompletedOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
 
   // Calculate totals
   const totalIncome = incomeData.reduce((sum, item) => sum + item.actual, 0);
@@ -56,8 +71,41 @@ const BudgetTracker = () => {
   const savingsRate = totalIncome > 0 ? (totalSavings / totalIncome) * 100 : 0;
   const streak = 5; // This would come from localStorage in real implementation
 
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('hasCompletedOnboarding', 'true');
+    setShowOnboarding(false);
+  };
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'add-income':
+        // Focus on income section
+        document.getElementById('income-section')?.scrollIntoView({ behavior: 'smooth' });
+        break;
+      case 'set-goals':
+        setShowGoals(true);
+        break;
+      case 'track-expenses':
+        setShowDetailedView(true);
+        break;
+      default:
+        console.log('Action:', action);
+    }
+  };
+
   return (
     <div className="min-h-screen ocean-bg">
+      {/* Onboarding Wizard */}
+      {showOnboarding && (
+        <OnboardingWizard
+          onComplete={handleOnboardingComplete}
+          onSkip={() => {
+            localStorage.setItem('hasCompletedOnboarding', 'true');
+            setShowOnboarding(false);
+          }}
+        />
+      )}
+
       <div className="container mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 max-w-7xl relative z-10">
         {/* Enhanced Header with Quick Actions */}
         <div className="flex flex-col lg:flex-row items-center justify-between mb-6 sm:mb-8 gap-4">
@@ -71,6 +119,24 @@ const BudgetTracker = () => {
           </div>
           
           <div className="flex flex-wrap gap-2 items-center">
+            <Button 
+              onClick={() => setShowQuickActions(!showQuickActions)}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20 hover:border-yellow-400 font-medium text-sm"
+            >
+              <Zap className="h-4 w-4" />
+              <span className="hidden xs:inline">{showQuickActions ? 'HIDE ACTIONS' : 'QUICK ACTIONS'}</span>
+            </Button>
+            <Button 
+              onClick={() => setShowGoals(!showGoals)}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400 font-medium text-sm"
+            >
+              <Target className="h-4 w-4" />
+              <span className="hidden xs:inline">{showGoals ? 'HIDE GOALS' : 'GOALS'}</span>
+            </Button>
             <Button 
               onClick={() => setShowGameView(!showGameView)}
               variant="outline"
@@ -120,6 +186,25 @@ const BudgetTracker = () => {
         </div>
         
         <BudgetHeader />
+
+        {/* Quick Actions Dashboard */}
+        {showQuickActions && (
+          <div className="mb-8">
+            <QuickActionCards
+              totalIncome={totalIncome}
+              totalExpenses={totalExpenses}
+              savingsRate={savingsRate}
+              onAction={handleQuickAction}
+            />
+          </div>
+        )}
+
+        {/* Goals Dashboard */}
+        {showGoals && (
+          <div className="mb-8">
+            <GoalSetting totalSavings={totalSavings} />
+          </div>
+        )}
         
         {/* Quick Stats Overview */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8 mb-8">
@@ -178,7 +263,7 @@ const BudgetTracker = () => {
           <>
             {/* Main Dashboard Grid - Detailed View */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 sm:gap-8">
-              <div className="xl:col-span-1">
+              <div className="xl:col-span-1" id="income-section">
                 <IncomeSection data={incomeData} setData={setIncomeData} />
               </div>
               
