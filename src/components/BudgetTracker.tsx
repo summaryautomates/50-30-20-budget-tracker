@@ -202,7 +202,7 @@ const BudgetTracker = () => {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-blue-400/70 font-medium text-sm">
               <Waves className="h-4 w-4 animate-pulse" />
-              <span>[ OCEAN SUITE OPERATIONAL ]</span>
+              <span>[ BETA MODE ]</span>
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
             </div>
             
