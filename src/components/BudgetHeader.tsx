@@ -49,7 +49,7 @@ const BudgetHeader = () => {
             50/30/20 BUDGET
           </h1>
           <div className="text-sm sm:text-base text-blue-300/80 mb-2 font-medium tracking-widest font-inter">
-            [ LUXURY FINANCIAL OCEAN SUITE ]
+            [ LUXURY FINANCIAL SUMMARY SUITE ]
           </div>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 mx-auto rounded-full"></div>
         </div>
