@@ -8,74 +8,132 @@ import {
   PiggyBank, 
   CreditCard, 
   Target, 
-  Calendar, 
+  Calculator, 
   BarChart3,
   Zap,
-  ArrowRight
+  ArrowRight,
+  DollarSign,
+  Lightbulb,
+  TrendingDown
 } from 'lucide-react';
 
 interface QuickActionCardsProps {
   totalIncome: number;
   totalExpenses: number;
   savingsRate: number;
-  onAction: (action: string) => void;
+  totalNeeds: number;
+  totalWants: number;
+  totalSavings: number;
+  leftover: number;
+  onAction: (action: string, data?: any) => void;
 }
 
-const QuickActionCards = ({ totalIncome, totalExpenses, savingsRate, onAction }: QuickActionCardsProps) => {
+const QuickActionCards = ({ 
+  totalIncome, 
+  totalExpenses, 
+  savingsRate, 
+  totalNeeds,
+  totalWants,
+  totalSavings,
+  leftover,
+  onAction 
+}: QuickActionCardsProps) => {
+  
+  // Calculate smart suggestions based on current data
+  const needsPercentage = totalIncome > 0 ? (totalNeeds / totalIncome) * 100 : 0;
+  const wantsPercentage = totalIncome > 0 ? (totalWants / totalIncome) * 100 : 0;
+  const savingsPercentage = totalIncome > 0 ? (totalSavings / totalIncome) * 100 : 0;
+  
   const suggestions = [
     {
-      id: 'add-income',
-      title: 'Add Income Source',
-      description: 'Boost your budget by adding a new income stream',
-      icon: <TrendingUp className="h-5 w-5" />,
+      id: 'quick-budget-setup',
+      title: 'Auto-Setup 50/30/20 Budget',
+      description: 'Automatically allocate your income using the proven 50/30/20 rule',
+      icon: <Calculator className="h-5 w-5" />,
       color: 'emerald',
-      priority: totalIncome === 0 ? 'high' : 'medium',
-      action: () => onAction('add-income')
+      priority: totalIncome > 0 && totalExpenses === 0 ? 'high' : 'low',
+      action: () => onAction('auto-setup-budget', { 
+        needs: totalIncome * 0.5,
+        wants: totalIncome * 0.3,
+        savings: totalIncome * 0.2
+      })
     },
     {
-      id: 'increase-savings',
-      title: 'Optimize Savings',
-      description: 'Increase your savings rate for better financial health',
+      id: 'add-emergency-fund',
+      title: 'Create Emergency Fund',
+      description: 'Set up an emergency fund worth 3-6 months of expenses',
       icon: <PiggyBank className="h-5 w-5" />,
       color: 'blue',
-      priority: savingsRate < 20 ? 'high' : 'low',
-      action: () => onAction('increase-savings')
+      priority: totalSavings === 0 ? 'high' : 'medium',
+      action: () => onAction('add-emergency-fund', {
+        amount: totalExpenses * 3
+      })
     },
     {
-      id: 'track-expenses',
-      title: 'Log Daily Expenses',
-      description: 'Keep track of your spending to stay on budget',
-      icon: <CreditCard className="h-5 w-5" />,
-      color: 'purple',
-      priority: totalExpenses === 0 ? 'high' : 'medium',
-      action: () => onAction('track-expenses')
-    },
-    {
-      id: 'set-goals',
-      title: 'Set Financial Goals',
-      description: 'Define targets to motivate your savings journey',
-      icon: <Target className="h-5 w-5" />,
-      color: 'cyan',
-      priority: 'medium',
-      action: () => onAction('set-goals')
-    },
-    {
-      id: 'monthly-review',
-      title: 'Monthly Review',
-      description: 'Analyze your spending patterns and progress',
-      icon: <Calendar className="h-5 w-5" />,
+      id: 'optimize-wants',
+      title: 'Optimize Wants Spending',
+      description: 'Review and reduce non-essential expenses to boost savings',
+      icon: <TrendingDown className="h-5 w-5" />,
       color: 'orange',
-      priority: 'low',
-      action: () => onAction('monthly-review')
+      priority: wantsPercentage > 35 ? 'high' : 'low',
+      action: () => onAction('optimize-wants', {
+        currentWants: totalWants,
+        recommendedWants: totalIncome * 0.3
+      })
     },
     {
-      id: 'budget-forecast',
-      title: 'Budget Forecast',
-      description: 'Plan your finances for the upcoming months',
+      id: 'increase-income',
+      title: 'Income Boost Calculator',
+      description: 'Calculate how much extra income you need for your goals',
+      icon: <TrendingUp className="h-5 w-5" />,
+      color: 'cyan',
+      priority: leftover < 0 ? 'high' : 'medium',
+      action: () => onAction('income-calculator', {
+        deficit: Math.abs(leftover),
+        currentIncome: totalIncome
+      })
+    },
+    {
+      id: 'savings-booster',
+      title: 'Savings Rate Booster',
+      description: 'Get personalized tips to increase your savings rate',
+      icon: <Lightbulb className="h-5 w-5" />,
+      color: 'purple',
+      priority: savingsRate < 20 ? 'high' : 'medium',
+      action: () => onAction('savings-booster', {
+        currentRate: savingsRate,
+        targetRate: 20,
+        income: totalIncome
+      })
+    },
+    {
+      id: 'debt-payoff-plan',
+      title: 'Debt Payoff Strategy',
+      description: 'Create an accelerated debt repayment plan',
+      icon: <CreditCard className="h-5 w-5" />,
+      color: 'red',
+      priority: 'medium',
+      action: () => onAction('debt-payoff-plan')
+    },
+    {
+      id: 'investment-planner',
+      title: 'Investment Portfolio Planner',
+      description: 'Plan your investment allocation based on your savings',
       icon: <BarChart3 className="h-5 w-5" />,
       color: 'pink',
-      priority: 'low',
-      action: () => onAction('budget-forecast')
+      priority: totalSavings > 50000 ? 'medium' : 'low',
+      action: () => onAction('investment-planner', {
+        availableSavings: totalSavings
+      })
+    },
+    {
+      id: 'monthly-challenge',
+      title: 'Start Savings Challenge',
+      description: 'Begin a 30-day money-saving challenge',
+      icon: <Target className="h-5 w-5" />,
+      color: 'yellow',
+      priority: 'medium',
+      action: () => onAction('savings-challenge')
     }
   ];
 
@@ -86,16 +144,18 @@ const QuickActionCards = ({ totalIncome, totalExpenses, savingsRate, onAction }:
       purple: 'border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/10 text-purple-400',
       cyan: 'border-cyan-500/30 bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-400',
       orange: 'border-orange-500/30 bg-orange-500/5 hover:bg-orange-500/10 text-orange-400',
-      pink: 'border-pink-500/30 bg-pink-500/5 hover:bg-pink-500/10 text-pink-400'
+      pink: 'border-pink-500/30 bg-pink-500/5 hover:bg-pink-500/10 text-pink-400',
+      red: 'border-red-500/30 bg-red-500/5 hover:bg-red-500/10 text-red-400',
+      yellow: 'border-yellow-500/30 bg-yellow-500/5 hover:bg-yellow-500/10 text-yellow-400'
     };
     return colors[color as keyof typeof colors] || colors.blue;
   };
 
   const getPriorityBadge = (priority: string) => {
     const badges = {
-      high: <Badge className="bg-red-500/20 text-red-400 border-red-500/50">High Priority</Badge>,
-      medium: <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50">Recommended</Badge>,
-      low: <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/50">Optional</Badge>
+      high: <Badge className="bg-red-500/20 text-red-400 border-red-500/50 text-xs">High Priority</Badge>,
+      medium: <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50 text-xs">Recommended</Badge>,
+      low: <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/50 text-xs">Optional</Badge>
     };
     return badges[priority as keyof typeof badges] || badges.medium;
   };
@@ -110,10 +170,10 @@ const QuickActionCards = ({ totalIncome, totalExpenses, savingsRate, onAction }:
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-4">
         <Zap className="h-5 w-5 text-yellow-400" />
-        <h3 className="text-lg font-bold text-yellow-400 font-mono">[ QUICK ACTIONS ]</h3>
+        <h3 className="text-lg font-bold text-yellow-400 font-mono">[ SMART FINANCIAL ACTIONS ]</h3>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {sortedSuggestions.map((suggestion) => (
           <Card 
             key={suggestion.id}
@@ -141,37 +201,49 @@ const QuickActionCards = ({ totalIncome, totalExpenses, savingsRate, onAction }:
         ))}
       </div>
 
-      {/* Smart Insights */}
+      {/* Smart Insights with actionable data */}
       <Card className="bg-gray-900/50 border-yellow-500/30 shadow-lg shadow-yellow-500/10">
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-3">
             <Zap className="h-4 w-4 text-yellow-400" />
-            <span className="text-sm font-semibold text-yellow-400">SMART INSIGHTS</span>
+            <span className="text-sm font-semibold text-yellow-400">INTELLIGENT INSIGHTS</span>
           </div>
           
           <div className="space-y-2 text-sm">
             {totalIncome === 0 && (
               <div className="flex items-center gap-2 text-orange-300">
-                <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                <span>Start by adding your monthly income to begin budgeting</span>
+                <DollarSign className="h-3 w-3" />
+                <span>Add your income to unlock personalized budget recommendations</span>
               </div>
             )}
-            {savingsRate < 10 && totalIncome > 0 && (
+            {needsPercentage > 60 && totalIncome > 0 && (
               <div className="flex items-center gap-2 text-red-300">
-                <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                <span>Your savings rate is below 10% - consider reducing expenses</span>
+                <TrendingUp className="h-3 w-3" />
+                <span>Your needs spending is {needsPercentage.toFixed(1)}% - consider reducing housing or debt costs</span>
+              </div>
+            )}
+            {wantsPercentage > 35 && totalIncome > 0 && (
+              <div className="flex items-center gap-2 text-orange-300">
+                <CreditCard className="h-3 w-3" />
+                <span>Wants spending at {wantsPercentage.toFixed(1)}% - try the optimization action above</span>
               </div>
             )}
             {savingsRate >= 20 && (
               <div className="flex items-center gap-2 text-green-300">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span>Excellent! You're meeting the 20% savings target</span>
+                <PiggyBank className="h-3 w-3" />
+                <span>Excellent! You're saving {savingsRate.toFixed(1)}% - consider investment planning</span>
               </div>
             )}
-            {totalExpenses === 0 && totalIncome > 0 && (
-              <div className="flex items-center gap-2 text-blue-300">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span>Add your expenses to see detailed budget analysis</span>
+            {leftover < 0 && (
+              <div className="flex items-center gap-2 text-red-300">
+                <TrendingDown className="h-3 w-3" />
+                <span>Budget deficit of ₹{Math.abs(leftover).toLocaleString('en-IN')} - use income booster action</span>
+              </div>
+            )}
+            {leftover > totalIncome * 0.1 && (
+              <div className="flex items-center gap-2 text-cyan-300">
+                <Lightbulb className="h-3 w-3" />
+                <span>Great! ₹{leftover.toLocaleString('en-IN')} surplus - consider boosting your savings</span>
               </div>
             )}
           </div>

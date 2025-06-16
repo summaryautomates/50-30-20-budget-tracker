@@ -16,6 +16,8 @@ import StreakTracker from './StreakTracker';
 import OnboardingWizard from './OnboardingWizard';
 import QuickActionCards from './QuickActionCards';
 import GoalSetting from './GoalSetting';
+import { useToast } from '@/hooks/use-toast';
+
 const BudgetTracker = () => {
   const [showDetailedView, setShowDetailedView] = useState(true);
   const [showGameView, setShowGameView] = useState(false);
@@ -35,6 +37,8 @@ const BudgetTracker = () => {
     saveData,
     downloadPDF
   } = useBudgetData();
+
+  const { toast } = useToast();
 
   // Check if user has completed onboarding
   useEffect(() => {
@@ -64,22 +68,127 @@ const BudgetTracker = () => {
     localStorage.setItem('hasCompletedOnboarding', 'true');
     setShowOnboarding(false);
   };
-  const handleQuickAction = (action: string) => {
+  const handleQuickAction = (action: string, data?: any) => {
     switch (action) {
+      case 'auto-setup-budget':
+        // Auto-allocate budget using 50/30/20 rule
+        const updatedNeedsData = needsData.map((item, index) => ({
+          ...item,
+          budget: index === 0 ? data.needs * 0.6 : index === 1 ? data.needs * 0.2 : data.needs * 0.2 / (needsData.length - 2)
+        }));
+        const updatedWantsData = wantsData.map((item, index) => ({
+          ...item,
+          budget: data.wants / wantsData.length
+        }));
+        const updatedSavingsData = savingsData.map((item, index) => ({
+          ...item,
+          budget: index === 0 ? data.savings * 0.5 : data.savings * 0.5 / (savingsData.length - 1)
+        }));
+        
+        setNeedsData(updatedNeedsData);
+        setWantsData(updatedWantsData);
+        setSavingsData(updatedSavingsData);
+        
+        toast({
+          title: "Budget Auto-Setup Complete!",
+          description: `Applied 50/30/20 rule: ₹${data.needs.toLocaleString('en-IN')} needs, ₹${data.wants.toLocaleString('en-IN')} wants, ₹${data.savings.toLocaleString('en-IN')} savings`,
+        });
+        break;
+
+      case 'add-emergency-fund':
+        const emergencyFundIndex = savingsData.findIndex(item => item.category === 'Emergency Fund');
+        if (emergencyFundIndex !== -1) {
+          const updatedSavings = [...savingsData];
+          updatedSavings[emergencyFundIndex] = {
+            ...updatedSavings[emergencyFundIndex],
+            budget: data.amount
+          };
+          setSavingsData(updatedSavings);
+          
+          toast({
+            title: "Emergency Fund Updated!",
+            description: `Set emergency fund target to ₹${data.amount.toLocaleString('en-IN')} (3 months of expenses)`,
+          });
+        }
+        break;
+
+      case 'optimize-wants':
+        const reduction = data.currentWants - data.recommendedWants;
+        if (reduction > 0) {
+          const optimizedWants = wantsData.map(item => ({
+            ...item,
+            budget: item.budget * (data.recommendedWants / data.currentWants)
+          }));
+          setWantsData(optimizedWants);
+          
+          toast({
+            title: "Wants Spending Optimized!",
+            description: `Reduced wants by ₹${reduction.toLocaleString('en-IN')} to meet 30% target`,
+          });
+        }
+        break;
+
+      case 'income-calculator':
+        const neededIncome = data.deficit + data.currentIncome;
+        const increasePercentage = ((neededIncome - data.currentIncome) / data.currentIncome * 100);
+        
+        toast({
+          title: "Income Goal Calculated!",
+          description: `You need ₹${neededIncome.toLocaleString('en-IN')} monthly income (${increasePercentage.toFixed(1)}% increase) to cover your expenses`,
+        });
+        break;
+
+      case 'savings-booster':
+        const targetSavings = (data.targetRate / 100) * data.income;
+        const additionalSavings = targetSavings - (data.currentRate / 100 * data.income);
+        
+        toast({
+          title: "Savings Boost Plan Ready!",
+          description: `To reach ${data.targetRate}% savings rate, increase savings by ₹${additionalSavings.toLocaleString('en-IN')} monthly`,
+        });
+        break;
+
+      case 'debt-payoff-plan':
+        toast({
+          title: "Debt Payoff Strategy",
+          description: "Focus on high-interest debts first. Consider the avalanche method: pay minimums on all debts, then put extra toward highest interest rate debt.",
+        });
+        break;
+
+      case 'investment-planner':
+        const conservativeAllocation = data.availableSavings * 0.3;
+        const moderateAllocation = data.availableSavings * 0.5;
+        const aggressiveAllocation = data.availableSavings * 0.2;
+        
+        toast({
+          title: "Investment Allocation Suggested!",
+          description: `Conservative: ₹${conservativeAllocation.toLocaleString('en-IN')}, Moderate: ₹${moderateAllocation.toLocaleString('en-IN')}, Aggressive: ₹${aggressiveAllocation.toLocaleString('en-IN')}`,
+        });
+        break;
+
+      case 'savings-challenge':
+        toast({
+          title: "30-Day Savings Challenge Started!",
+          description: "Try to save ₹100 extra each day for 30 days. Small consistent efforts lead to big results!",
+        });
+        break;
+
       case 'add-income':
-        // Focus on income section
         document.getElementById('income-section')?.scrollIntoView({
           behavior: 'smooth'
         });
         break;
+        
       case 'set-goals':
         setShowGoals(true);
         break;
+        
       case 'track-expenses':
         setShowDetailedView(true);
         break;
+        
       default:
-        console.log('Action:', action);
+        console.log('Action:', action, data);
     }
   };
   return <div className="min-h-screen ocean-bg">
@@ -102,7 +211,7 @@ const BudgetTracker = () => {
           <div className="flex flex-wrap gap-2 items-center">
             <Button onClick={() => setShowQuickActions(!showQuickActions)} variant="outline" size="sm" className="gap-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20 hover:border-yellow-400 font-medium text-sm">
               <Zap className="h-4 w-4" />
-              <span className="hidden xs:inline">{showQuickActions ? 'HIDE ACTIONS' : 'QUICK ACTIONS'}</span>
+              <span className="hidden xs:inline">{showQuickActions ? 'HIDE ACTIONS' : 'SMART ACTIONS'}</span>
             </Button>
             <Button onClick={() => setShowGoals(!showGoals)} variant="outline" size="sm" className="gap-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400 font-medium text-sm">
               <Target className="h-4 w-4" />
@@ -135,7 +244,16 @@ const BudgetTracker = () => {
 
         {/* Quick Actions Dashboard */}
         {showQuickActions && <div className="mb-8">
-            <QuickActionCards totalIncome={totalIncome} totalExpenses={totalExpenses} savingsRate={savingsRate} onAction={handleQuickAction} />
+            <QuickActionCards 
+              totalIncome={totalIncome} 
+              totalExpenses={totalExpenses} 
+              savingsRate={savingsRate}
+              totalNeeds={totalNeeds}
+              totalWants={totalWants}
+              totalSavings={totalSavings}
+              leftover={leftover}
+              onAction={handleQuickAction} 
+            />
           </div>}
 
         {/* Goals Dashboard */}
