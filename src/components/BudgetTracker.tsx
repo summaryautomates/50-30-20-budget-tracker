@@ -16,6 +16,7 @@ import StreakTracker from './StreakTracker';
 import OnboardingWizard from './OnboardingWizard';
 import QuickActionCards from './QuickActionCards';
 import GoalSetting from './GoalSetting';
+import DailyTransactions from './DailyTransactions';
 import { useToast } from '@/hooks/use-toast';
 
 const BudgetTracker = () => {
@@ -24,6 +25,8 @@ const BudgetTracker = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [showGoals, setShowGoals] = useState(false);
+  const [showTransactions, setShowTransactions] = useState(false);
+  
   const {
     incomeData,
     setIncomeData,
@@ -209,6 +212,10 @@ const BudgetTracker = () => {
           </div>
           
           <div className="flex flex-wrap gap-2 items-center">
+            <Button onClick={() => setShowTransactions(!showTransactions)} variant="outline" size="sm" className="gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400 font-medium text-sm">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden xs:inline">{showTransactions ? 'HIDE TRANSACTIONS' : 'DAILY LOGS'}</span>
+            </Button>
             <Button onClick={() => setShowQuickActions(!showQuickActions)} variant="outline" size="sm" className="gap-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20 hover:border-yellow-400 font-medium text-sm">
               <Zap className="h-4 w-4" />
               <span className="hidden xs:inline">{showQuickActions ? 'HIDE ACTIONS' : 'SMART ACTIONS'}</span>
@@ -241,6 +248,11 @@ const BudgetTracker = () => {
         </div>
         
         <BudgetHeader />
+
+        {/* Daily Transactions */}
+        {showTransactions && <div className="mb-8">
+            <DailyTransactions />
+          </div>}
 
         {/* Quick Actions Dashboard */}
         {showQuickActions && <div className="mb-8">
