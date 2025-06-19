@@ -47,8 +47,8 @@ const SecureDailyTransactions = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('transactions' as any)
+      const { data, error } = await (supabase as any)
+        .from('transactions')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -93,8 +93,8 @@ const SecureDailyTransactions = () => {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('transactions' as any)
+      const { data, error } = await (supabase as any)
+        .from('transactions')
         .insert([{
           user_id: user.id,
           amount: parseFloat(newTransaction.amount),
@@ -117,13 +117,13 @@ const SecureDailyTransactions = () => {
       }
 
       const newTrans: Transaction = {
-        id: data.id,
-        amount: Number(data.amount),
-        description: data.description,
-        category: data.category,
-        type: data.type,
-        date: data.transaction_date,
-        time: data.transaction_time || '00:00:00'
+        id: (data as any).id,
+        amount: Number((data as any).amount),
+        description: (data as any).description,
+        category: (data as any).category,
+        type: (data as any).type,
+        date: (data as any).transaction_date,
+        time: (data as any).transaction_time || '00:00:00'
       };
 
       setTransactions(prev => [newTrans, ...prev]);
@@ -147,8 +147,8 @@ const SecureDailyTransactions = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from('transactions' as any)
+      const { error } = await (supabase as any)
+        .from('transactions')
         .delete()
         .eq('id', id)
         .eq('user_id', user.id);
@@ -186,8 +186,8 @@ const SecureDailyTransactions = () => {
     if (!user || !editingId || !newTransaction.amount || !newTransaction.description || !newTransaction.category) return;
 
     try {
-      const { error } = await supabase
-        .from('transactions' as any)
+      const { error } = await (supabase as any)
+        .from('transactions')
         .update({
           amount: parseFloat(newTransaction.amount),
           description: newTransaction.description,
