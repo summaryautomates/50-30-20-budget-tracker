@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Lock, Mail, User, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Shield, Lock, Mail, User, ArrowLeft, Eye, EyeOff, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const AuthPage = () => {
@@ -19,15 +19,15 @@ const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [resetMode, setResetMode] = useState(false);
   
-  const { signIn, signUp, resetPassword, user } = useAuth();
+  const { signIn, signUp, resetPassword, user, isGuest, continueAsGuest } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) {
+    if (user || isGuest) {
       navigate('/');
     }
-  }, [user, navigate]);
+  }, [user, isGuest, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,9 +44,10 @@ const AuthPage = () => {
     const { error } = await signIn(email, password);
     
     if (error) {
+      console.error('Sign in error details:', error);
       toast({
         title: "Sign In Failed",
-        description: error.message || "Invalid email or password",
+        description: error.message || "Invalid email or password. Please check your credentials.",
         variant: "destructive"
       });
     } else {
@@ -91,9 +92,10 @@ const AuthPage = () => {
     const { error } = await signUp(email, password, fullName);
     
     if (error) {
+      console.error('Sign up error details:', error);
       toast({
         title: "Sign Up Failed",
-        description: error.message || "Failed to create account",
+        description: error.message || "Failed to create account. Please try again.",
         variant: "destructive"
       });
     } else {
@@ -133,6 +135,10 @@ const AuthPage = () => {
       setResetMode(false);
     }
     setLoading(false);
+  };
+
+  const handleGuestAccess = () => {
+    continueAsGuest();
   };
 
   if (resetMode) {
@@ -339,6 +345,21 @@ const AuthPage = () => {
               </form>
             </TabsContent>
           </Tabs>
+
+          {/* Guest Access Button */}
+          <div className="mt-6 pt-4 border-t border-gray-700">
+            <Button
+              onClick={handleGuestAccess}
+              variant="outline"
+              className="w-full border-gray-500 text-gray-300 hover:bg-gray-800"
+            >
+              <UserCheck className="h-4 w-4 mr-2" />
+              Continue as Guest
+            </Button>
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              Explore the app without signing up. Your data won't be saved.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -8,10 +8,12 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isGuest: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
+  continueAsGuest: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,9 +30,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
+    // Check if user is in guest mode
+    const guestMode = localStorage.getItem('guestMode');
+    if (guestMode === 'true') {
+      setIsGuest(true);
+      setLoading(false);
+      return;
+    }
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -38,8 +49,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        setIsGuest(false);
 
         if (event === 'SIGNED_IN' && session?.user) {
+          // Clear guest mode when user signs in
+          localStorage.removeItem('guestMode');
           // Migrate localStorage data on first login
           setTimeout(() => {
             migrateLocalStorageData(session.user.id);
@@ -181,27 +195,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (!error) {
+        localStorage.removeItem('guestMode');
+        setIsGuest(false);
+      }
+      
+      return { error };
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      return { error };
+    }
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName || ''
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName || ''
+          }
         }
+      });
+      
+      if (!error) {
+        localStorage.removeItem('guestMode');
+        setIsGuest(false);
       }
-    });
-    return { error };
+      
+      return { error };
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      return { error };
+    }
   };
 
   const signOut = async () => {
@@ -209,6 +245,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!error) {
       setUser(null);
       setSession(null);
+      setIsGuest(false);
+      localStorage.removeItem('guestMode');
     }
   };
 
@@ -219,14 +257,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
+  const continueAsGuest = () => {
+    localStorage.setItem('guestMode', 'true');
+    setIsGuest(true);
+    setLoading(false);
+    toast({
+      title: "Guest Access Enabled",
+      description: "You can explore the app with limited functionality. Sign up to save your data.",
+    });
+  };
+
   const value = {
     user,
     session,
     loading,
+    isGuest,
     signIn,
     signUp,
     signOut,
     resetPassword,
+    continueAsGuest,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
