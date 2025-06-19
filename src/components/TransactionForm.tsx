@@ -60,7 +60,14 @@ const TransactionForm = ({
   };
 
   const currentTransaction = editingId ? editingTransaction : newTransaction;
-  const setCurrentTransaction = editingId ? onEditTransaction : setNewTransaction;
+  
+  const updateCurrentTransaction = (updates: Partial<typeof currentTransaction>) => {
+    if (editingId) {
+      onEditTransaction({ ...editingTransaction, ...updates });
+    } else {
+      setNewTransaction(prev => ({ ...prev, ...updates }));
+    }
+  };
 
   return (
     <Card className="bg-gray-900/50 border-blue-500/30">
@@ -74,7 +81,7 @@ const TransactionForm = ({
           <Select 
             value={currentTransaction.type} 
             onValueChange={(value: 'income' | 'expense') => 
-              setCurrentTransaction(prev => ({ ...prev, type: value, category: '' }))
+              updateCurrentTransaction({ type: value, category: '' })
             }
           >
             <SelectTrigger className="bg-gray-800 border-blue-500/50">
@@ -90,22 +97,20 @@ const TransactionForm = ({
             placeholder="Amount (₹)"
             type="number"
             value={currentTransaction.amount}
-            onChange={(e) => setCurrentTransaction(prev => ({ ...prev, amount: e.target.value }))}
+            onChange={(e) => updateCurrentTransaction({ amount: e.target.value })}
             className="bg-gray-800 border-blue-500/50"
           />
 
           <Input
             placeholder="Description"
             value={currentTransaction.description}
-            onChange={(e) => setCurrentTransaction(prev => ({ ...prev, description: e.target.value }))}
+            onChange={(e) => updateCurrentTransaction({ description: e.target.value })}
             className="bg-gray-800 border-blue-500/50"
           />
 
           <Select 
             value={currentTransaction.category} 
-            onValueChange={(value) => 
-              setCurrentTransaction(prev => ({ ...prev, category: value }))
-            }
+            onValueChange={(value) => updateCurrentTransaction({ category: value })}
           >
             <SelectTrigger className="bg-gray-800 border-blue-500/50">
               <SelectValue placeholder="Category" />
