@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const migrateLocalStorageData = async (userId: string) => {
     try {
       // Check if user already has data in database
-      const { data: existingData } = await supabase
+      const { data: existingData } = await (supabase as any)
         .from('budget_data')
         .select('id')
         .eq('user_id', userId)
@@ -135,7 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (migrationData.length > 0) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('budget_data')
           .insert(migrationData);
 
@@ -165,7 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }));
 
         if (transactionData.length > 0) {
-          const { error } = await supabase
+          const { error } = await (supabase as any)
             .from('transactions')
             .insert(transactionData);
 

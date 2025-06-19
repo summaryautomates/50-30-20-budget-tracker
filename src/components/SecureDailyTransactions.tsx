@@ -20,6 +20,18 @@ interface Transaction {
   time: string;
 }
 
+interface TransactionData {
+  id: string;
+  user_id: string;
+  amount: number;
+  description: string;
+  category: string;
+  type: 'income' | 'expense';
+  transaction_date: string;
+  transaction_time: string;
+  created_at: string;
+}
+
 const SecureDailyTransactions = () => {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -48,7 +60,7 @@ const SecureDailyTransactions = () => {
 
     try {
       const { data, error } = await supabase
-        .from('transactions')
+        .from('transactions' as any)
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -58,7 +70,7 @@ const SecureDailyTransactions = () => {
         return;
       }
 
-      const formattedTransactions = data?.map(transaction => ({
+      const formattedTransactions = (data as TransactionData[])?.map(transaction => ({
         id: transaction.id,
         amount: Number(transaction.amount),
         description: transaction.description,
@@ -94,7 +106,7 @@ const SecureDailyTransactions = () => {
 
     try {
       const { data, error } = await supabase
-        .from('transactions')
+        .from('transactions' as any)
         .insert([{
           user_id: user.id,
           amount: parseFloat(newTransaction.amount),
@@ -117,13 +129,13 @@ const SecureDailyTransactions = () => {
       }
 
       const newTrans: Transaction = {
-        id: data.id,
-        amount: Number(data.amount),
-        description: data.description,
-        category: data.category,
-        type: data.type,
-        date: data.transaction_date,
-        time: data.transaction_time || '00:00:00'
+        id: (data as TransactionData).id,
+        amount: Number((data as TransactionData).amount),
+        description: (data as TransactionData).description,
+        category: (data as TransactionData).category,
+        type: (data as TransactionData).type,
+        date: (data as TransactionData).transaction_date,
+        time: (data as TransactionData).transaction_time || '00:00:00'
       };
 
       setTransactions(prev => [newTrans, ...prev]);
@@ -148,7 +160,7 @@ const SecureDailyTransactions = () => {
 
     try {
       const { error } = await supabase
-        .from('transactions')
+        .from('transactions' as any)
         .delete()
         .eq('id', id)
         .eq('user_id', user.id);
@@ -187,7 +199,7 @@ const SecureDailyTransactions = () => {
 
     try {
       const { error } = await supabase
-        .from('transactions')
+        .from('transactions' as any)
         .update({
           amount: parseFloat(newTransaction.amount),
           description: newTransaction.description,

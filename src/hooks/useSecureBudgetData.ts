@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +27,19 @@ interface ExpenseItem {
   actual: number;
 }
 
+interface BudgetDataRow {
+  id: string;
+  user_id: string;
+  category: string;
+  subcategory?: string;
+  type: string;
+  budget_amount: number;
+  actual_amount: number;
+  payday?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export const useSecureBudgetData = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -41,7 +55,7 @@ export const useSecureBudgetData = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('budget_data')
         .select('*')
         .eq('user_id', user.id);
@@ -91,10 +105,11 @@ export const useSecureBudgetData = () => {
       ];
 
       // Transform database data to component format
-      const incomeItems = data?.filter(item => item.type === 'income') || [];
-      const needsItems = data?.filter(item => item.type === 'needs') || [];
-      const wantsItems = data?.filter(item => item.type === 'wants') || [];
-      const savingsItems = data?.filter(item => item.type === 'savings') || [];
+      const budgetData = data as BudgetDataRow[];
+      const incomeItems = budgetData?.filter(item => item.type === 'income') || [];
+      const needsItems = budgetData?.filter(item => item.type === 'needs') || [];
+      const wantsItems = budgetData?.filter(item => item.type === 'wants') || [];
+      const savingsItems = budgetData?.filter(item => item.type === 'savings') || [];
 
       // Merge with defaults
       const income = defaultIncome.map(defaultItem => {
@@ -152,7 +167,7 @@ export const useSecureBudgetData = () => {
 
     try {
       // First, delete existing data of this type
-      await supabase
+      await (supabase as any)
         .from('budget_data')
         .delete()
         .eq('user_id', user.id)
@@ -169,7 +184,7 @@ export const useSecureBudgetData = () => {
         payday: type === 'income' ? item.payday : null
       }));
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('budget_data')
         .insert(insertData);
 
@@ -215,7 +230,7 @@ export const useSecureBudgetData = () => {
     if (!loading && user && savingsData.length > 0) {
       saveBudgetData(savingsData, 'savings');
     }
-  }, [savingsData,, loading, user]);
+  }, [savingsData, loading, user]);
 
   const resetData = () => {
     const zeroIncome = incomeData.map(item => ({ ...item, budget: 0, actual: 0 }));
