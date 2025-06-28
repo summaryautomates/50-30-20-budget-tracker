@@ -36,6 +36,9 @@ const AuthPage = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Sign in button clicked');
     
     if (!email.trim() || !password) {
       toast({
@@ -76,6 +79,11 @@ const AuthPage = () => {
           description: errorMessage,
           variant: "destructive"
         });
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You have been signed in successfully"
+        });
       }
     } catch (error) {
       console.error('Unexpected sign in error:', error);
@@ -91,6 +99,9 @@ const AuthPage = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Sign up button clicked');
     
     if (!email.trim() || !password || !fullName.trim()) {
       toast({
@@ -149,6 +160,11 @@ const AuthPage = () => {
           description: errorMessage,
           variant: "destructive"
         });
+      } else {
+        toast({
+          title: "Account Created!",
+          description: "Welcome to Summary Finance Suite! You can start using the app immediately."
+        });
       }
     } catch (error) {
       console.error('Unexpected sign up error:', error);
@@ -162,7 +178,12 @@ const AuthPage = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Google sign in button clicked');
+    
     setLoading(true);
     try {
       const { error } = await signInWithGoogle();
@@ -189,6 +210,9 @@ const AuthPage = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Reset password button clicked');
     
     if (!email.trim()) {
       toast({
@@ -237,8 +261,37 @@ const AuthPage = () => {
     }
   };
 
-  const handleGuestAccess = () => {
+  const handleGuestAccess = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Guest access button clicked');
+    
     continueAsGuest();
+  };
+
+  const handleShowResetMode = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Show reset mode clicked');
+    setResetMode(true);
+  };
+
+  const handleBackToSignIn = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Back to sign in clicked');
+    setResetMode(false);
+  };
+
+  const togglePasswordVisibility = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Toggle password visibility clicked');
+    setShowPassword(!showPassword);
   };
 
   if (resetMode) {
@@ -271,7 +324,7 @@ const AuthPage = () => {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={loading}
               >
                 {loading ? 'Sending...' : 'Send Reset Email'}
@@ -279,8 +332,8 @@ const AuthPage = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full border-gray-500 text-gray-300"
-                onClick={() => setResetMode(false)}
+                className="w-full border-gray-500 text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleBackToSignIn}
                 disabled={loading}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -344,8 +397,8 @@ const AuthPage = () => {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-blue-400 hover:text-blue-300"
+                      onClick={togglePasswordVisibility}
+                      className="absolute right-3 top-3 text-blue-400 hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={loading}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -354,7 +407,7 @@ const AuthPage = () => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={loading}
                 >
                   {loading ? 'Signing In...' : 'Sign In'}
@@ -362,8 +415,8 @@ const AuthPage = () => {
                 <Button
                   type="button"
                   variant="link"
-                  className="w-full text-blue-400 hover:text-blue-300"
-                  onClick={() => setResetMode(true)}
+                  className="w-full text-blue-400 hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleShowResetMode}
                   disabled={loading}
                 >
                   Forgot your password?
@@ -422,8 +475,8 @@ const AuthPage = () => {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-blue-400 hover:text-blue-300"
+                      onClick={togglePasswordVisibility}
+                      className="absolute right-3 top-3 text-blue-400 hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={loading}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -448,7 +501,7 @@ const AuthPage = () => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={loading}
                 >
                   {loading ? 'Creating Account...' : 'Create Account'}
@@ -468,9 +521,10 @@ const AuthPage = () => {
               </div>
             </div>
             <Button
+              type="button"
               onClick={handleGoogleSignIn}
               variant="outline"
-              className="w-full mt-4 border-gray-500 text-gray-300 hover:bg-gray-800"
+              className="w-full mt-4 border-gray-500 text-gray-300 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
@@ -486,9 +540,10 @@ const AuthPage = () => {
           {/* Guest Access Button */}
           <div className="mt-6 pt-4 border-t border-gray-700">
             <Button
+              type="button"
               onClick={handleGuestAccess}
               variant="outline"
-              className="w-full border-gray-500 text-gray-300 hover:bg-gray-800"
+              className="w-full border-gray-500 text-gray-300 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               <UserCheck className="h-4 w-4 mr-2" />

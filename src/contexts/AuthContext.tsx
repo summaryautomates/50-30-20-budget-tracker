@@ -34,65 +34,80 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if user is in guest mode
-    const guestMode = localStorage.getItem('guestMode');
-    if (guestMode === 'true') {
-      setIsGuest(true);
-      setLoading(false);
-      return;
-    }
+    let mounted = true;
 
-    // Get initial session
-    const getInitialSession = async () => {
+    const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('Error getting session:', error);
-        } else {
-          setSession(session);
-          setUser(session?.user ?? null);
-          if (session?.user) {
-            await createUserProfile(session.user);
+        // Check if user is in guest mode
+        const guestMode = localStorage.getItem('guestMode');
+        if (guestMode === 'true') {
+          if (mounted) {
+            setIsGuest(true);
+            setLoading(false);
           }
+          return;
+        }
+
+        // Get initial session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (mounted) {
+          if (error) {
+            console.error('Error getting session:', error);
+          } else {
+            setSession(session);
+            setUser(session?.user ?? null);
+            if (session?.user) {
+              await createUserProfile(session.user);
+            }
+          }
+          setLoading(false);
         }
       } catch (error) {
-        console.error('Error in getInitialSession:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error in initializeAuth:', error);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
-    getInitialSession();
+    initializeAuth();
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        setIsGuest(false);
-
-        if (event === 'SIGNED_IN' && session?.user) {
-          // Clear guest mode when user signs in
-          localStorage.removeItem('guestMode');
-          await createUserProfile(session.user);
-          // Migrate localStorage data on first login
-          setTimeout(() => {
-            migrateLocalStorageData(session.user.id);
-          }, 1000);
-        }
-
-        if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setSession(null);
+        
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
           setIsGuest(false);
-          localStorage.removeItem('guestMode');
+
+          if (event === 'SIGNED_IN' && session?.user) {
+            // Clear guest mode when user signs in
+            localStorage.removeItem('guestMode');
+            await createUserProfile(session.user);
+            // Migrate localStorage data on first login
+            setTimeout(() => {
+              migrateLocalStorageData(session.user.id);
+            }, 1000);
+          }
+
+          if (event === 'SIGNED_OUT') {
+            setUser(null);
+            setSession(null);
+            setIsGuest(false);
+            localStorage.removeItem('guestMode');
+          }
         }
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const createUserProfile = async (user: User) => {
@@ -249,11 +264,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
-      setLoading(true);
+      console.log('Attempting to sign in with:', email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
+      
+      console.log('Sign in response:', { data, error });
       
       if (!error && data.user) {
         localStorage.removeItem('guestMode');
@@ -268,27 +286,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error: any) {
       console.error('Sign in error:', error);
       return { error };
-    } finally {
-      setLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
-      setLoading(true);
-      const redirectUrl = `${window.location.origin}/`;
+      console.log('Attempting to sign up with:', email, fullName);
       
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName || '',
             name: fullName || ''
           }
         }
       });
+      
+      console.log('Sign up response:', { data, error });
       
       if (!error && data.user) {
         localStorage.removeItem('guestMode');
@@ -303,14 +319,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error: any) {
       console.error('Sign up error:', error);
       return { error };
-    } finally {
-      setLoading(false);
     }
   };
 
   const signInWithGoogle = async () => {
     try {
-      setLoading(true);
+      console.log('Attempting Google sign in');
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -322,6 +337,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
       
+      console.log('Google sign in response:', { data, error });
+      
       if (!error) {
         localStorage.removeItem('guestMode');
         setIsGuest(false);
@@ -331,14 +348,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error: any) {
       console.error('Google sign in error:', error);
       return { error };
-    } finally {
-      setLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
-      setLoading(true);
       const { error } = await supabase.auth.signOut();
       if (!error) {
         setUser(null);
@@ -352,16 +366,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Sign out error:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const resetPassword = async (email: string) => {
     try {
+      console.log('Attempting password reset for:', email);
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${window.location.origin}/reset-password`,
       });
+      
+      console.log('Reset password response:', { error });
+      
       return { error };
     } catch (error: any) {
       console.error('Reset password error:', error);
@@ -370,6 +387,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const continueAsGuest = () => {
+    console.log('Continuing as guest');
+    
     localStorage.setItem('guestMode', 'true');
     setIsGuest(true);
     setLoading(false);
