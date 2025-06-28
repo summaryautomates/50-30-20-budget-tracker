@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Shield, Waves, Save, Download, TrendingUp, Eye, EyeOff, Gamepad2, Zap, Target, LogOut } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { RotateCcw, Shield, Waves, Save, Download, TrendingUp, Eye, EyeOff, Gamepad2, Zap, Target } from 'lucide-react';
 import { useBudgetData } from '@/hooks/useBudgetData';
-import { useSecureBudgetData } from '@/hooks/useSecureBudgetData';
 import BudgetHeader from './BudgetHeader';
 import IncomeSection from './IncomeSection';
 import BudgetVisualization from './BudgetVisualization';
@@ -19,7 +17,6 @@ import OnboardingWizard from './OnboardingWizard';
 import QuickActionCards from './QuickActionCards';
 import GoalSetting from './GoalSetting';
 import DailyTransactions from './DailyTransactions';
-import GuestBanner from './GuestBanner';
 import { useToast } from '@/hooks/use-toast';
 
 const BudgetTracker = () => {
@@ -30,15 +27,6 @@ const BudgetTracker = () => {
   const [showGoals, setShowGoals] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
   
-  const { user, isGuest, signOut } = useAuth();
-  const { toast } = useToast();
-
-  // Use secure data for authenticated users, local data for guests
-  const localBudgetData = useBudgetData();
-  const secureBudgetData = useSecureBudgetData();
-  
-  const budgetData = user ? secureBudgetData : localBudgetData;
-
   const {
     incomeData,
     setIncomeData,
@@ -50,9 +38,10 @@ const BudgetTracker = () => {
     setSavingsData,
     resetData,
     saveData,
-    downloadPDF,
-    loading
-  } = budgetData;
+    downloadPDF
+  } = useBudgetData();
+
+  const { toast } = useToast();
 
   // Check if user has completed onboarding
   useEffect(() => {
@@ -63,10 +52,10 @@ const BudgetTracker = () => {
   }, []);
 
   // Calculate totals
-  const totalIncome = incomeData?.reduce((sum, item) => sum + item.actual, 0) || 0;
-  const totalNeeds = needsData?.reduce((sum, item) => sum + item.actual, 0) || 0;
-  const totalWants = wantsData?.reduce((sum, item) => sum + item.actual, 0) || 0;
-  const totalSavings = savingsData?.reduce((sum, item) => sum + item.actual, 0) || 0;
+  const totalIncome = incomeData.reduce((sum, item) => sum + item.actual, 0);
+  const totalNeeds = needsData.reduce((sum, item) => sum + item.actual, 0);
+  const totalWants = wantsData.reduce((sum, item) => sum + item.actual, 0);
+  const totalSavings = savingsData.reduce((sum, item) => sum + item.actual, 0);
   const totalExpenses = totalNeeds + totalWants + totalSavings;
   const leftover = totalIncome - totalExpenses;
 
@@ -82,27 +71,23 @@ const BudgetTracker = () => {
     localStorage.setItem('hasCompletedOnboarding', 'true');
     setShowOnboarding(false);
   };
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
+  
   const handleQuickAction = (action: string, data?: any) => {
     switch (action) {
       case 'auto-setup-budget':
         // Auto-allocate budget using 50/30/20 rule
-        const updatedNeedsData = needsData?.map((item, index) => ({
+        const updatedNeedsData = needsData.map((item, index) => ({
           ...item,
           budget: index === 0 ? data.needs * 0.6 : index === 1 ? data.needs * 0.2 : data.needs * 0.2 / (needsData.length - 2)
-        })) || [];
-        const updatedWantsData = wantsData?.map((item, index) => ({
+        }));
+        const updatedWantsData = wantsData.map((item, index) => ({
           ...item,
           budget: data.wants / wantsData.length
-        })) || [];
-        const updatedSavingsData = savingsData?.map((item, index) => ({
+        }));
+        const updatedSavingsData = savingsData.map((item, index) => ({
           ...item,
           budget: index === 0 ? data.savings * 0.5 : data.savings * 0.5 / (savingsData.length - 1)
-        })) || [];
+        }));
         
         setNeedsData(updatedNeedsData);
         setWantsData(updatedWantsData);
@@ -115,8 +100,8 @@ const BudgetTracker = () => {
         break;
 
       case 'add-emergency-fund':
-        const emergencyFundIndex = savingsData?.findIndex(item => item.category === 'Emergency Fund') || -1;
-        if (emergencyFundIndex !== -1 && savingsData) {
+        const emergencyFundIndex = savingsData.findIndex(item => item.category === 'Emergency Fund');
+        if (emergencyFundIndex !== -1) {
           const updatedSavings = [...savingsData];
           updatedSavings[emergencyFundIndex] = {
             ...updatedSavings[emergencyFundIndex],
@@ -133,7 +118,7 @@ const BudgetTracker = () => {
 
       case 'optimize-wants':
         const reduction = data.currentWants - data.recommendedWants;
-        if (reduction > 0 && wantsData) {
+        if (reduction > 0) {
           const optimizedWants = wantsData.map(item => ({
             ...item,
             budget: item.budget * (data.recommendedWants / data.currentWants)
@@ -211,17 +196,6 @@ const BudgetTracker = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen ocean-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-blue-400 font-mono">[ LOADING FINANCIAL DATA ]</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen ocean-bg">
       {/* Onboarding Wizard */}
@@ -236,109 +210,48 @@ const BudgetTracker = () => {
       )}
 
       <div className="container mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 max-w-7xl relative z-10">
-        {/* Guest Banner */}
-        <GuestBanner />
-
         {/* Enhanced Header with Quick Actions */}
         <div className="flex flex-col lg:flex-row items-center justify-between mb-6 sm:mb-8 gap-4">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-blue-400 animate-pulse" />
-              <span className="text-blue-400 font-semibold text-sm sm:text-base tracking-wide">
-                [ SUMMARY FINANCIAL SUITE ]
-              </span>
+              <span className="text-blue-400 font-semibold text-sm sm:text-base tracking-wide">[ SUMMARY FINANCIAL SUITE ]</span>
             </div>
-            {user && (
-              <div className="text-xs text-blue-300/70">
-                Welcome, {user.user_metadata?.full_name || user.email}
-              </div>
-            )}
           </div>
           
           <div className="flex flex-wrap gap-2 items-center">
-            <Button 
-              onClick={() => setShowTransactions(!showTransactions)} 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400 font-medium text-sm"
-            >
+            <Button onClick={() => setShowTransactions(!showTransactions)} variant="outline" size="sm" className="gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400 font-medium text-sm">
               <TrendingUp className="h-4 w-4" />
               <span className="hidden xs:inline">{showTransactions ? 'HIDE TRANSACTIONS' : 'DAILY LOGS'}</span>
             </Button>
-            <Button 
-              onClick={() => setShowQuickActions(!showQuickActions)} 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20 hover:border-yellow-400 font-medium text-sm"
-            >
+            <Button onClick={() => setShowQuickActions(!showQuickActions)} variant="outline" size="sm" className="gap-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20 hover:border-yellow-400 font-medium text-sm">
               <Zap className="h-4 w-4" />
               <span className="hidden xs:inline">{showQuickActions ? 'HIDE ACTIONS' : 'SMART ACTIONS'}</span>
             </Button>
-            <Button 
-              onClick={() => setShowGoals(!showGoals)} 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400 font-medium text-sm"
-            >
+            <Button onClick={() => setShowGoals(!showGoals)} variant="outline" size="sm" className="gap-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400 font-medium text-sm">
               <Target className="h-4 w-4" />
               <span className="hidden xs:inline">{showGoals ? 'HIDE GOALS' : 'GOALS'}</span>
             </Button>
-            <Button 
-              onClick={() => setShowGameView(!showGameView)} 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/20 hover:border-purple-400 font-medium text-sm"
-            >
+            <Button onClick={() => setShowGameView(!showGameView)} variant="outline" size="sm" className="gap-2 border-purple-500/50 text-purple-400 hover:bg-purple-500/20 hover:border-purple-400 font-medium text-sm">
               <Gamepad2 className="h-4 w-4" />
               <span className="hidden xs:inline">{showGameView ? 'HIDE GAME' : 'GAME MODE'}</span>
             </Button>
-            <Button 
-              onClick={() => setShowDetailedView(!showDetailedView)} 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/20 hover:border-blue-400 font-medium text-sm"
-            >
+            <Button onClick={() => setShowDetailedView(!showDetailedView)} variant="outline" size="sm" className="gap-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/20 hover:border-blue-400 font-medium text-sm">
               {showDetailedView ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               <span className="hidden xs:inline">{showDetailedView ? 'SIMPLE VIEW' : 'DETAILED VIEW'}</span>
             </Button>
-            <Button 
-              onClick={saveData} 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400 font-medium text-sm"
-            >
+            <Button onClick={saveData} variant="outline" size="sm" className="gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400 font-medium text-sm">
               <Save className="h-4 w-4" />
               <span className="hidden xs:inline">SAVE</span>
             </Button>
-            <Button 
-              onClick={downloadPDF} 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400 font-medium text-sm"
-            >
+            <Button onClick={downloadPDF} variant="outline" size="sm" className="gap-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400 font-medium text-sm">
               <Download className="h-4 w-4" />
               <span className="hidden xs:inline">PDF</span>
             </Button>
-            <Button 
-              onClick={resetData} 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400 font-medium text-sm"
-            >
+            <Button onClick={resetData} variant="outline" size="sm" className="gap-2 border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400 font-medium text-sm">
               <RotateCcw className="h-4 w-4" />
               <span className="hidden xs:inline">RESET</span>
             </Button>
-            {user && (
-              <Button 
-                onClick={handleSignOut} 
-                variant="outline" 
-                size="sm" 
-                className="gap-2 border-orange-500/50 text-orange-400 hover:bg-orange-500/20 hover:border-orange-400 font-medium text-sm"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden xs:inline">SIGN OUT</span>
-              </Button>
-            )}
           </div>
         </div>
         
@@ -385,20 +298,8 @@ const BudgetTracker = () => {
         {/* Gamification Dashboard */}
         {showGameView && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <FinancialHealthScore 
-              totalIncome={totalIncome} 
-              totalNeeds={totalNeeds} 
-              totalWants={totalWants} 
-              totalSavings={totalSavings} 
-              leftover={leftover} 
-            />
-            <AchievementSystem 
-              totalIncome={totalIncome} 
-              totalSavings={totalSavings} 
-              savingsRate={savingsRate} 
-              budgetCompliance={budgetCompliance} 
-              streak={streak} 
-            />
+            <FinancialHealthScore totalIncome={totalIncome} totalNeeds={totalNeeds} totalWants={totalWants} totalSavings={totalSavings} leftover={leftover} />
+            <AchievementSystem totalIncome={totalIncome} totalSavings={totalSavings} savingsRate={savingsRate} budgetCompliance={budgetCompliance} streak={streak} />
             <StreakTracker budgetCompliance={budgetCompliance} leftover={leftover} />
           </div>
         )}
@@ -408,39 +309,28 @@ const BudgetTracker = () => {
             {/* Main Dashboard Grid - Detailed View */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 sm:gap-8">
               <div className="xl:col-span-1" id="income-section">
-                <IncomeSection data={incomeData || []} setData={setIncomeData} />
+                <IncomeSection data={incomeData} setData={setIncomeData} />
               </div>
               
               <div className="xl:col-span-2">
-                <BudgetVisualization 
-                  needs={totalNeeds} 
-                  wants={totalWants} 
-                  savings={totalSavings} 
-                  income={totalIncome} 
-                />
+                <BudgetVisualization needs={totalNeeds} wants={totalWants} savings={totalSavings} income={totalIncome} />
               </div>
               
               <div className="xl:col-span-1">
-                <BudgetSummary 
-                  totalIncome={totalIncome} 
-                  totalNeeds={totalNeeds} 
-                  totalWants={totalWants} 
-                  totalSavings={totalSavings} 
-                  leftover={leftover} 
-                />
+                <BudgetSummary totalIncome={totalIncome} totalNeeds={totalNeeds} totalWants={totalWants} totalSavings={totalSavings} leftover={leftover} />
               </div>
             </div>
 
             {/* Budget Categories Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-10">
               <div className="w-full">
-                <NeedsSection data={needsData || []} setData={setNeedsData} />
+                <NeedsSection data={needsData} setData={setNeedsData} />
               </div>
               <div className="w-full">
-                <WantsSection data={wantsData || []} setData={setWantsData} />
+                <WantsSection data={wantsData} setData={setWantsData} />
               </div>
               <div className="w-full">
-                <SavingsSection data={savingsData || []} setData={setSavingsData} />
+                <SavingsSection data={savingsData} setData={setSavingsData} />
               </div>
             </div>
           </>
@@ -448,22 +338,11 @@ const BudgetTracker = () => {
           /* Simple View - Focused on key metrics */
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <IncomeSection data={incomeData || []} setData={setIncomeData} />
-              <BudgetSummary 
-                totalIncome={totalIncome} 
-                totalNeeds={totalNeeds} 
-                totalWants={totalWants} 
-                totalSavings={totalSavings} 
-                leftover={leftover} 
-              />
+              <IncomeSection data={incomeData} setData={setIncomeData} />
+              <BudgetSummary totalIncome={totalIncome} totalNeeds={totalNeeds} totalWants={totalWants} totalSavings={totalSavings} leftover={leftover} />
             </div>
             <div>
-              <BudgetVisualization 
-                needs={totalNeeds} 
-                wants={totalWants} 
-                savings={totalSavings} 
-                income={totalIncome} 
-              />
+              <BudgetVisualization needs={totalNeeds} wants={totalWants} savings={totalSavings} income={totalIncome} />
             </div>
           </div>
         )}
@@ -473,7 +352,7 @@ const BudgetTracker = () => {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-blue-400/70 font-medium text-sm">
               <Waves className="h-4 w-4 animate-pulse" />
-              <span>[ {user ? 'SECURE MODE' : isGuest ? 'GUEST MODE' : 'OFFLINE MODE'} ]</span>
+              <span>[ OFFLINE MODE ]</span>
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
             </div>
             
