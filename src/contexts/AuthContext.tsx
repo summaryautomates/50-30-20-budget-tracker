@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +10,7 @@ interface AuthContextType {
   isGuest: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   continueAsGuest: () => void;
@@ -42,6 +42,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        } else {
+          setSession(session);
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            await createUserProfile(session.user);
+          }
+        }
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -54,28 +76,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (event === 'SIGNED_IN' && session?.user) {
           // Clear guest mode when user signs in
           localStorage.removeItem('guestMode');
+          await createUserProfile(session.user);
           // Migrate localStorage data on first login
           setTimeout(() => {
             migrateLocalStorageData(session.user.id);
-          }, 0);
+          }, 1000);
+        }
+
+        if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setSession(null);
+          setIsGuest(false);
+          localStorage.removeItem('guestMode');
         }
       }
     );
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
     return () => subscription.unsubscribe();
   }, []);
+
+  const createUserProfile = async (user: User) => {
+    try {
+      // Check if profile already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (!existingProfile) {
+        // Create profile if it doesn't exist
+        const { error } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: user.id,
+              full_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
+              avatar_url: user.user_metadata?.avatar_url || null,
+            }
+          ]);
+
+        if (error) {
+          console.error('Error creating user profile:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error in createUserProfile:', error);
+    }
+  };
 
   const migrateLocalStorageData = async (userId: string) => {
     try {
       // Check if user already has data in database
-      const { data: existingData } = await (supabase as any)
+      const { data: existingData } = await supabase
         .from('budget_data')
         .select('id')
         .eq('user_id', userId)
@@ -149,7 +202,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (migrationData.length > 0) {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('budget_data')
           .insert(migrationData);
 
@@ -179,7 +232,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }));
 
         if (transactionData.length > 0) {
-          const { error } = await (supabase as any)
+          const { error } = await supabase
             .from('transactions')
             .insert(transactionData);
 
@@ -196,35 +249,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
         password,
       });
       
-      if (!error) {
+      if (!error && data.user) {
         localStorage.removeItem('guestMode');
         setIsGuest(false);
+        toast({
+          title: "Welcome back!",
+          description: "You have been signed in successfully"
+        });
       }
       
       return { error };
     } catch (error: any) {
       console.error('Sign in error:', error);
       return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
+      setLoading(true);
       const redirectUrl = `${window.location.origin}/`;
       
-      const { error } = await supabase.auth.signUp({
-        email,
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
         password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            full_name: fullName || ''
+            full_name: fullName || '',
+            name: fullName || ''
           }
+        }
+      });
+      
+      if (!error && data.user) {
+        localStorage.removeItem('guestMode');
+        setIsGuest(false);
+        toast({
+          title: "Account Created!",
+          description: "Welcome to Summary Finance Suite! You can start using the app immediately."
+        });
+      }
+      
+      return { error };
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      return { error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         }
       });
       
@@ -235,26 +329,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       return { error };
     } catch (error: any) {
-      console.error('Sign up error:', error);
+      console.error('Google sign in error:', error);
       return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      setUser(null);
-      setSession(null);
-      setIsGuest(false);
-      localStorage.removeItem('guestMode');
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signOut();
+      if (!error) {
+        setUser(null);
+        setSession(null);
+        setIsGuest(false);
+        localStorage.removeItem('guestMode');
+        toast({
+          title: "Signed Out",
+          description: "You have been successfully signed out"
+        });
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    return { error };
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      return { error };
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      return { error };
+    }
   };
 
   const continueAsGuest = () => {
@@ -274,6 +386,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isGuest,
     signIn,
     signUp,
+    signInWithGoogle,
     signOut,
     resetPassword,
     continueAsGuest,
