@@ -34,11 +34,13 @@ const AuthPage = () => {
     return emailRegex.test(email);
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleSignIn = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
-    console.log('Sign in button clicked');
+    console.log('🔥 Sign in button clicked - WORKING!');
     
     if (!email.trim() || !password) {
       toast({
@@ -60,10 +62,11 @@ const AuthPage = () => {
 
     setLoading(true);
     try {
+      console.log('🚀 Attempting sign in...');
       const { error } = await signIn(email, password);
       
       if (error) {
-        console.error('Sign in error details:', error);
+        console.error('❌ Sign in error:', error);
         let errorMessage = "Invalid email or password. Please check your credentials.";
         
         if (error.message?.includes('Invalid login credentials')) {
@@ -80,13 +83,14 @@ const AuthPage = () => {
           variant: "destructive"
         });
       } else {
+        console.log('✅ Sign in successful!');
         toast({
           title: "Welcome back!",
           description: "You have been signed in successfully"
         });
       }
     } catch (error) {
-      console.error('Unexpected sign in error:', error);
+      console.error('💥 Unexpected sign in error:', error);
       toast({
         title: "Sign In Failed",
         description: "An unexpected error occurred. Please try again.",
@@ -97,11 +101,13 @@ const AuthPage = () => {
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleSignUp = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
-    console.log('Sign up button clicked');
+    console.log('🔥 Sign up button clicked - WORKING!');
     
     if (!email.trim() || !password || !fullName.trim()) {
       toast({
@@ -141,10 +147,11 @@ const AuthPage = () => {
 
     setLoading(true);
     try {
+      console.log('🚀 Attempting sign up...');
       const { error } = await signUp(email, password, fullName);
       
       if (error) {
-        console.error('Sign up error details:', error);
+        console.error('❌ Sign up error:', error);
         let errorMessage = "Failed to create account. Please try again.";
         
         if (error.message?.includes('User already registered')) {
@@ -161,13 +168,14 @@ const AuthPage = () => {
           variant: "destructive"
         });
       } else {
+        console.log('✅ Sign up successful!');
         toast({
           title: "Account Created!",
           description: "Welcome to Summary Finance Suite! You can start using the app immediately."
         });
       }
     } catch (error) {
-      console.error('Unexpected sign up error:', error);
+      console.error('💥 Unexpected sign up error:', error);
       toast({
         title: "Sign Up Failed",
         description: "An unexpected error occurred. Please try again.",
@@ -178,26 +186,26 @@ const AuthPage = () => {
     }
   };
 
-  const handleGoogleSignIn = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    console.log('Google sign in button clicked');
+  const handleGoogleSignIn = async () => {
+    console.log('🔥 Google sign in button clicked - WORKING!');
     
     setLoading(true);
     try {
+      console.log('🚀 Attempting Google sign in...');
       const { error } = await signInWithGoogle();
       
       if (error) {
-        console.error('Google sign in error:', error);
+        console.error('❌ Google sign in error:', error);
         toast({
           title: "Google Sign In Failed",
           description: "Failed to sign in with Google. Please try again.",
           variant: "destructive"
         });
+      } else {
+        console.log('✅ Google sign in initiated!');
       }
     } catch (error) {
-      console.error('Unexpected Google sign in error:', error);
+      console.error('💥 Unexpected Google sign in error:', error);
       toast({
         title: "Google Sign In Failed",
         description: "An unexpected error occurred. Please try again.",
@@ -208,11 +216,13 @@ const AuthPage = () => {
     }
   };
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleResetPassword = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
-    console.log('Reset password button clicked');
+    console.log('🔥 Reset password button clicked - WORKING!');
     
     if (!email.trim()) {
       toast({
@@ -234,15 +244,18 @@ const AuthPage = () => {
 
     setLoading(true);
     try {
+      console.log('🚀 Attempting password reset...');
       const { error } = await resetPassword(email);
       
       if (error) {
+        console.error('❌ Reset error:', error);
         toast({
           title: "Reset Failed",
           description: error.message || "Failed to send reset email. Please try again.",
           variant: "destructive"
         });
       } else {
+        console.log('✅ Reset email sent!');
         toast({
           title: "Reset Email Sent",
           description: "Check your email for password reset instructions"
@@ -250,7 +263,7 @@ const AuthPage = () => {
         setResetMode(false);
       }
     } catch (error) {
-      console.error('Reset password error:', error);
+      console.error('💥 Reset password error:', error);
       toast({
         title: "Reset Failed",
         description: "An unexpected error occurred. Please try again.",
@@ -261,36 +274,29 @@ const AuthPage = () => {
     }
   };
 
-  const handleGuestAccess = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleGuestAccess = () => {
+    console.log('🔥 Guest access button clicked - WORKING!');
     
-    console.log('Guest access button clicked');
-    
-    continueAsGuest();
+    try {
+      continueAsGuest();
+      console.log('✅ Guest access granted!');
+    } catch (error) {
+      console.error('💥 Guest access error:', error);
+    }
   };
 
-  const handleShowResetMode = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    console.log('Show reset mode clicked');
+  const handleShowResetMode = () => {
+    console.log('🔥 Show reset mode clicked - WORKING!');
     setResetMode(true);
   };
 
-  const handleBackToSignIn = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    console.log('Back to sign in clicked');
+  const handleBackToSignIn = () => {
+    console.log('🔥 Back to sign in clicked - WORKING!');
     setResetMode(false);
   };
 
-  const togglePasswordVisibility = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    console.log('Toggle password visibility clicked');
+  const togglePasswordVisibility = () => {
+    console.log('🔥 Toggle password visibility clicked - WORKING!');
     setShowPassword(!showPassword);
   };
 
@@ -326,6 +332,7 @@ const AuthPage = () => {
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={loading}
+                onClick={handleResetPassword}
               >
                 {loading ? 'Sending...' : 'Send Reset Email'}
               </Button>
@@ -409,6 +416,7 @@ const AuthPage = () => {
                   type="submit"
                   className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={loading}
+                  onClick={handleSignIn}
                 >
                   {loading ? 'Signing In...' : 'Sign In'}
                 </Button>
@@ -503,6 +511,7 @@ const AuthPage = () => {
                   type="submit"
                   className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={loading}
+                  onClick={handleSignUp}
                 >
                   {loading ? 'Creating Account...' : 'Create Account'}
                 </Button>
